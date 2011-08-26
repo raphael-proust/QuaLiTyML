@@ -4,29 +4,7 @@ embed
 \section{Type system}
 \label{sec.typing}
 
-The Objective Caml manual does not describe the type system. Therefore our
-semantics is driven by an attempt to mirror what the Objective Caml
-implementation does, drawing inspiration from various presentations of type
-systems for ML.  Some notable aspects of the formalization follow:
-\begin{itemize}
-\item
-We give a declarative presentation of polymorphic typing, i.e., without
-unification.
-\item
-Polymorphic $\ottkw{let}$ introduces type variables which are encoded with de
-Bruijn indices.
-\item
-Several rules have premises that state there are at least 1 (or 2) elements of
-a list, despite there being 3 or 4 dots.  This is because Ott does not use dot
-imposed length restrictions in the theorem prover models.
-\item
-Occasionally, we state that some list X1 .. Xm has length m.  Ott does not
-impose this restriction in the theorem prover models either.
-\item
-We show how the system works with type abbreviations, but we do not use them in
-our theorem prover models because our soundness proof mechanization does not
-yet deal with them. 
-\end{itemize}
+TODO
 
 }}
 

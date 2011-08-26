@@ -1,29 +1,18 @@
-%%%% Preamble follows, search \title to know what this file is about %%%%
-
-%% In this file, lines beginning with %d or %m are to allow different versions
-%% of the system to be build by filtering with a sed script.  %d corresponds to
-%% definition-level features and %m corresponds to module-level features.  (The
-%% %m version of the system is not currently working or maintained.)
-
-
-%% Note that with the current ott behaviour, all macro definitions *must*
-%% be in the first TeX embedding which must come before anything else that
-%% ott doesn't ignore.
 embed
 {{ tex
 \makeatletter
 \input ott-spec.ltx
-\newcommand{\ottenvironmentappend}[2]{%
-  \begingroup%
-  \def\@tempa{#1}\def\@tempb{ \ottkw{empty} }%
-  \ifx\@tempa\@tempb\def\@tempc{}\else\def\@tempc{#1,}\fi%
-  \expandafter\endgroup%
-  \@tempc#2%
+\newcommand{\ottenvironmentappend}[2]{
+  \begingroup
+  \def\@tempa{#1}\def\@tempb{ \ottkw{empty} }
+  \ifx\@tempa\@tempb\def\@tempc{}\else\def\@tempc{#1,}\fi
+  \expandafter\endgroup
+  \@tempc#2
 }
-\newcommand{\ie}{%
+\newcommand{\ie}{
 i.e.,
 }
-\newcommand{\eg}{%
+\newcommand{\eg}{
 e.g.,
 }
 \makeatother
@@ -31,12 +20,8 @@ e.g.,
 %d\HAVEtypedefinitionstrue
 %m\HAVEmodulestrue
 
-%%%% End of preamble %%%%
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\title{A formal specification for OCaml: the Core Language}
-\author{Scott Owens and Gilles Peskine and Peter Sewell}
+\title{QuaLiTyML}
+\author{Raphael Proust}
 \maketitle
 
 \tableofcontents
@@ -44,117 +29,7 @@ e.g.,
 \section{Introduction}
 \label{sec.introduction}
 
-This document describes the syntax and semantics of a substantial fragment of
-Objective Caml's core language.   When writing this semantics, we have followed
-the structure of part 2 of the Objective Caml manual:
-
-\begin{quote}
-  The Objective Caml system \\
-  release 3.09 \\
-  Documentation and user's manual \\
-  Xavier Leroy (with Damien Doligez, Jacques Garrigue, Didier R\'emy and J\'er\^ome Vouillon) \\
-  Copyright \copyright{} 2005 Institut National de Recherche en Informatique et en Automatique
-\end{quote}
-
-Our aim is to describe a real language, including theoretically redundant but
-practically useful features. We do not however cover the whole Objective Caml
-language: we have omitted some major semantic features, such as objects and
-modules.  Our guideline is to retain the semantic features of core ML as
-implemented in Objective Caml.  Our language corresponds roughly to the
-fragment presented in Chapter 1 of the Objective Caml manual.
-
-Supported features include:
-\begin{itemize}
-\item 
-the following primitive types and type constructors: \verb|int|, \verb|char|,
-\verb|string|, \verb|float|, \verb|bool|, \verb|unit|, \verb|exn|, \verb|list|,
-\verb|option|, \verb|ref|;
-\item
-tuple and function types
-\ifHAVEtypedefinitions
-\item 
-type and type constructor definitions, including:
-\begin{itemize}
-\item
-type abbreviations (\eg \verb|type t = int|),
-\item
-generative variant and record types (\eg \verb$type t = I of int | D of char$ and \verb|type t = {f:int}|),
-\item
-parametric type constructors (\eg \verb|type 'a t = 'a -> 'a|),
-\item
-recursive and mutually recursive combinations of the above (although all
-recursion must go through a variant or record type);
-\end{itemize}
-\fi
-\item 
-let-based polymorphism (with the traditional ML-style value restriction);
-\item
-31-bit word semantics for integers and IEEE-754 semantics for floating point
-numbers (in the version of the system generated for HOL);
-\item
-type annotations (\eg \verb|3:int|), list notation (\eg [1; 2; 3]), record
-\verb|with| expressions, \verb|if| expressions, \verb|while| expressions, 
-\verb|for| expressions, sequencing (\verb|;|), \verb|assert| expressions;
-\item 
-(potentially) mutually-recursive function definitions;
-\item
-pattern matching with nested patterns and \verb$|$ patterns;
-\item 
-mutable references through \verb|ref|, \verb|:=|, and \verb|!|;
-\ifHAVEmodules
-%% ?
-\fi
-\item
-exception definitions and handling (\verb|try|, \verb|raise|, \verb|exception|);
-\item
-polymorphic equality (the \verb|=| operator).
-\end{itemize}
-
-The following features are not supported:
-\begin{itemize}
-\ifHAVEtypedefinitions
-\item
-mutable records (\eg \texttt{\{mutable l1=e1;...;mutable ln=en\} });
-\else
-\item
-type definitions;
-\fi
-\item
-arrays;
-\ifHAVEmodules
-\item functors, named signatures, abstract signatures, module constraints
-\item any form of subsignaturing, whether type abstraction, field erasure
-      or less polymorphic values
-\else
-\item
-modules;
-\fi
-\item
-subtyping, labels, polymorphic variants, objects;
-\item 
-pattern matching guards (\texttt{when});
-\item 
-features documented in the ``language extensions'' part of the manual;
-\item 
-\texttt{-rectypes}, exhaustivity of pattern matching, and other compiler command-line options;
-\item 
-support for type abbreviations in the HOL model (we explain in the commentary
-how they should be added);
-\iffalse
-\item a couple of really dark corners best left untold;
-\fi
-\item 
-finiteness of memory.
-\end{itemize}
-
-This document contains a description of the language syntax
-(\S\ref{sec.syntax}), a type system (\S\ref{sec.typing}) and an
-operational semantics (\S\ref{sec.runtime}).
-
-\paragraph{Metatheory}
-This typeset definition is generated by \texttt{ott}.  Well-formed definitions
-in HOL, Isabelle/HOL and Coq are also generated.  We have mechanized the type
-soundness theorem for the system in HOL.
+TODO
 
 }}
 
@@ -178,37 +53,8 @@ val _ = wordsLib.mk_word_size 31;
 \section{Syntax}
 \label{sec.syntax}
 
-We describe the syntax of the core OCaml language in BNF form, closely
-following the description in the Objective Caml manual, but omitting
-unsupported language features. The concrete syntax of Objective Caml includes
-lexical specifications as well as precedence rules to disambiguate the grammar;
-we do not reproduce these here.
+TODO
 
-Some productions mention annotations to the right of the right-hand side.
-The following annotations are understood by Ott.
-\begin{itemize}
-\item 
-\textsf{M} indicates a metaproduction.  These are not part of the free grammar
-for the relevant nonterminal, but instead are given meaning (in the theorem
-prover models) by translation into non-metaproductions.  These translations,
-specified in the Ott source, are specific to each theorem prover.  We summarize
-their action in this document.
-
-\item ``\textsf{bind ...}'' and ``$\mathit{auxfun=\ldots}$'' are Ott
-      binding specifications.
-\end{itemize}
-The following annotations are for informational purposes only.
-\begin{itemize}
-\item \textsf{[I]} indicates a production that is not intended to be
-      available in user programs but is useful in the metatheory.
-\item \textsf{[L]} indicates a library facility (as opposed to a
-      strictly language facility).
-\item \textsf{[S]} indicates that the production (which must be a metaproduction)
-       is implemented as syntactic sugar.
-\item \textsf{d} indicates a definition-level feature, if enabled.
-\end{itemize}
-
-\bigskip
 }}
 
 %% Note: ott does not currently supports TeX embeddings inside the
