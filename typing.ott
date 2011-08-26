@@ -162,12 +162,6 @@ E, (value_name : forall t) |- ok
  ----------------------------------------------------- :: constr_name_c
   E,(constr_name of typeconstr_name) |- ok
 
-  E |- ok
-  dom(E) gives names
-  constr_name notin names
- ----------------------------------------------------- :: exn_constr_name_c
-  E,(constr_name of exn) |- ok
-
   type_params_opt = (tv1, ..., tvm)
   E |- forall type_params_opt, t1 : Type ... E |- forall type_params_opt, tn : Type
   E |- typeconstr_name gives typeconstr_name : m -> Type
@@ -177,13 +171,6 @@ E, (value_name : forall t) |- ok
   :formula_length_list_type_param_eq:length (tv1) ... (tvm) = m
  ----------------------------------------------------- :: constr_name_p
   E,(constr_name of forall (tv1, ..., tvm), (t1, ..., tn) : typeconstr_name) |- ok
-
-  E |- t1 : Type ... E |- tn : Type 
-  dom(E) gives names
-  constr_name notin names
-  length (t1) ... (tn) >= 1
- ----------------------------------------------------- :: exn_constr_name_p
-  E,(constr_name of forall , (t1, ..., tn) : exn) |- ok
 
 
   E |- forall (tv1, ..., tvm), t : Type
@@ -269,10 +256,6 @@ E |- bool : Type
 E |- ok
 ------------------------------------------------------- :: unit
 E |- unit : Type
-
-E |- ok
-------------------------------------------------------- :: exn
-E |- exn : Type
 
 E |- ok
 ------------------------------------------------------- :: list
@@ -555,10 +538,6 @@ well as a return type.
  ----------------------------------------------------- :: name
   E |- constr_name : t1' .... tn' -> (t1'', ..., tm'') typeconstr
 
-E |- ok
-------------------------------------------------------- :: invarg
-E |- Invalid_argument : string -> exn
-
 E |- t : Type
 ------------------------------------------------------- :: some
 E |- Some : t -> (t option) 
@@ -584,31 +563,10 @@ arguments.
  ----------------------------------------------------- :: constr
   E |- constr_name : (t1, ..., tn) typeconstr_name
 
-  E |- ok
-  E |- constr_name gives constr_name of exn
- ----------------------------------------------------- :: exn_constr
-  E |- constr_name : exn 
-
-E |- ok
-------------------------------------------------------- :: notfound
-E |- Not_found : exn
-
-E |- ok
-------------------------------------------------------- :: assert_fail
-E |- Assert_failure : exn
-
-E |- ok
-------------------------------------------------------- :: match_fail
-E |- Match_failure : exn
-
 {{ com
 Dropping the source location arguments for $\ottkw{Assert\_failure}$ and
 $\ottkw{Match\_failure}$.
 }}
-
-E |- ok
-------------------------------------------------------- :: div_by_0
-E |- Division_by_zero : exn
 
 E |- t : Type
 ------------------------------------------------------- :: none
@@ -754,10 +712,6 @@ E |- unary_prim : typexpr :: :: uprim :: uprim_ {{ com Unary primitive typing }}
 Determines if a unary primitive has a given type.
 }}
 
-E |- t : Type
----------------------------------------------------------------- :: raise
-E |- raise : exn -> t
-
 E |- ok
 ---------------------------------------------------------------- :: not
 E |- not : bool -> bool
@@ -804,7 +758,7 @@ E |- * : int->(int->int)
 
 E |- ok
 ---------------------------------------------------------------- :: div
-E |- / : int->(int->int)
+E |- / : int->(int->int option)
 
 E |- t : Type
 ---------------------------------------------------------------- :: assign
@@ -825,8 +779,8 @@ type variables (which are recorded in $[[E]]$).  $[[Tsigma]]$ gives the types
 that should replace type variables in explicitly type-annotated patterns.
 
 While the choice of a rule is mostly syntax-directed (for any given
-constructor, a single rule applies, except for $\ottkw{let}$ and
-$\ottkw{assert}$), polymorphism is handled in a purely declarative manner. The
+constructor, a single rule applies, except for $\ottkw{let}$),
+polymorphism is handled in a purely declarative manner. The
 choice of instantiation for a polymorphic bound variable or primitive is free,
 as is the number of variables introduced by a polymorphic $\ottkw{let}$.
 }}
@@ -958,11 +912,6 @@ E |- t -> t' == t''
 ------------------------------------------------------- :: function
 Tsigma & E |- function pattern_matching : t''
 
-Tsigma & E |- e : t
-Tsigma & E |- pattern_matching : exn -> t
-------------------------------------------------------- :: try
-Tsigma & E |- try e with pattern_matching : t
-
 {{ com
 We give three rules for $\ottkw{let}$ expressions. The rule
 \ottdruleref{JTe\_let\_mono} describes ``monomorphic let'': it does not allow the
@@ -992,15 +941,6 @@ shift 0 1 Tsigma & E,TV |- letrec_bindings gives x1:t1, ..., xn:tn
 Tsigma & E@(x1:forall t1), ..., (xn:forall tn) |- e : t
 ------------------------------------------------------- :: letrec
 Tsigma & E |- let rec letrec_bindings in e : t
-
-Tsigma & E |- e : bool
-E |- unit == t
-------------------------------------------------------- :: assert
-Tsigma & E |- assert e : t
-
-E |- t : Type
-------------------------------------------------------- :: assertfalse
-Tsigma & E |- assert false : t
 
 E |- ok
 E |- location gives location:t
@@ -1250,11 +1190,6 @@ E |- type typedef1 and ... and typedefn gives E'
 ------------------------------------------------------- :: typedef
 E |- type typedef1 and ... and typedefn : E'
 
-E |- ok
-exn |- constr_decl gives EB
-------------------------------------------------------- :: exndef
-E |- exception constr_decl : EB
-
 defns 
 JTdefinitions :: JT ::=
 
@@ -1287,10 +1222,6 @@ Checks a progam.
 :JTdefinitions: E |- definitions : E'
 ----------------------------------------------------- :: defs
 E |- definitions : E'
-
-Tsigma & E |- v : t
--------------------------------------------- :: raise
-E |- (%prim raise) v : :Env_list:
 
  >>
 <<
@@ -1403,9 +1334,6 @@ Notable aspects of the formalization include:
 explicit rules for evaluation in context (instead of a grammar of evaluation contexts),
 
 \item
-small-step propogation of exceptions,
-
-\item
 substitution-based function application,
 
 \item
@@ -1415,10 +1343,7 @@ differs from the implementation's choice, which is based on the type
 declaration,
 
 \item
-unlike the implementation, we do not treat curried functions specially, the
-difference can be seen in this program:
-$[[:user_syntax__program: :Ds_cons_semi:let f = function 1 -> function _ -> 10;; :Ds_cons_semi:let _ = f 2;;]]$
-which does not raise an exception in the implementation.
+unlike the implementation, we do not treat curried functions specially.
 
 \item
 As in the type system, several rules have premises that state there are at

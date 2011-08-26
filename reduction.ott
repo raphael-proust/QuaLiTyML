@@ -203,10 +203,6 @@ defn
 Computes the result of a binary primitive application.
 }}
 
-|- funval(v)
-------------------------------------------------------- :: equal_fun
-|- v = v' --> (%prim raise) (:Expr_construct: Invalid_argument (equal_error_string))
-% equal_error_string should be "equal: functional value", but we can't write that directly.
 
 ------------------------------------------------------- :: equal_const_true
 |- constant = constant --> true
@@ -261,11 +257,11 @@ constr noteq constr'
 |- intn1 * intn2 --> intn1 .* intn2
 
 ------------------------------------------------------- :: div0
-|- intn / 0 --> (%prim raise) Division_by_zero
+|- intn / 0 --> None
 
 intn2 noteq 0
 ------------------------------------------------------- :: div
-|- intn1 / intn2 --> intn1 ./ intn2
+|- intn1 / intn2 --> Some (intn1 ./ intn2)
 
 {{ com
 The side effect of an assignment is communicated to the store via the
@@ -311,11 +307,6 @@ does not match.
 ------------------------------------------------------- :: found
 |- v with pat -> e | pat1->e1 | ... | patn->en --> <<x1<-v1,..,xm<-vm>> e
 
-|- v notmatches pat
-------------------------------------------------------- :: fail
-|- v with pat -> e --> (%prim raise) Match_failure
-
-
 defns
 Jred :: JR_ ::=
 
@@ -323,8 +314,7 @@ defn
 |- expr labelled_arrow expr' :: :: expr :: expr_  {{ com Expression evaluation }} by
 
 {{ com
-Reduces an expression one-step.  Most evaluation contexts require two rules,
-one for normal evaluation and one for exception propagation.
+Reduces an expression one-step.
 }}
 
 |- unary_prim v -->L e
@@ -347,15 +337,9 @@ Right-to-left evaluation order for application (i.e., argument before function).
 ------------------------------------------------------- :: apply_ctx_arg
 |- e1 e0 -->L e1 e0'
 
-------------------------------------------------------- :: apply_raise1
-|- e ((%prim raise) v) --> (%prim raise) v
-
 |- e1 -->L e1'
 ------------------------------------------------------- :: apply_ctx_fun
 |- e1 v0 -->L e1' v0
-
-------------------------------------------------------- :: apply_raise2
-|- ((%prim raise) v) v' --> (%prim raise) v
 
 ------------------------------------------------------- :: apply
 |- (function pattern_matching v0) --> match v0 with pattern_matching
@@ -364,16 +348,10 @@ Right-to-left evaluation order for application (i.e., argument before function).
 ------------------------------------------------------- :: let_ctx
 |- let pat = e0 in e -->L let pat = e0' in e
 
-------------------------------------------------------- :: let_raise
-|- let pat = (%prim raise) v in e --> (%prim raise) v
-
 |- v matches pat gives <<x1<-v1,..,xm<-vm>>
 ------------------------------------------------------- :: let_subst
 |- let pat = v in e --> <<x1<-v1,..,xm<-vm>>e
 
-|- v notmatches pat
-------------------------------------------------------- :: let_fail
-|- let pat = v in e --> (%prim raise) Match_failure
 
 letrec_bindings = x1 = function pattern_matching1 and ... and xn = function pattern_matchingn 
 recfun(letrec_bindings, pattern_matching1) gives e1 ... recfun(letrec_bindings, pattern_matchingn) gives en
@@ -384,18 +362,12 @@ recfun(letrec_bindings, pattern_matching1) gives e1 ... recfun(letrec_bindings, 
 ------------------------------------------------------- :: sequence_ctx_left
 |- e1; e2 -->L e1'; e2
 
-------------------------------------------------------- :: sequence_raise
-|- ((%prim raise) v); e --> (%prim raise) v
-
 ------------------------------------------------------- :: sequence
 |- v; e2 --> e2
 
 |- e1 -->L e1'
 ------------------------------------------------------- :: ifthenelse_ctx
 |- if e1 then e2 else e3 -->L if e1' then e2 else e3
-
-------------------------------------------------------- :: if_raise
-|- if (%prim raise) v then e1 else e2 --> (%prim raise) v
 
 ------------------------------------------------------- :: ifthenelse_true
 |- if true then e2 else e3 --> e2
@@ -412,9 +384,6 @@ evaluation).
 |- e -->L e'
 ------------------------------------------------------- :: match_ctx
 |- match e with pattern_matching -->L match e' with pattern_matching
-
-------------------------------------------------------- :: match_raise
-|- match (%prim raise) v with pattern_matching --> (%prim raise) v
 
 |- v with pattern_matching --> pattern_matching'
 ------------------------------------------------------- :: match_step
@@ -442,15 +411,9 @@ which appears to follow the implementation.
 ------------------------------------------------------- :: for_ctx1
 |- for x = e1 for_dirn e2 do e3 done -->L for x = e1' for_dirn e2 do e3 done
 
-------------------------------------------------------- :: for_raise1
-|- for x = (%prim raise) v for_dirn e2 do e3 done --> (%prim raise) v
-
 |- e2 -->L e2'
 ------------------------------------------------------- :: for_ctx2
 |- for x = v1 for_dirn e2 do e3 done -->L for x = v1 for_dirn e2' do e3 done
-
-------------------------------------------------------- :: for_raise2
-|- for x = v for_dirn (%prim raise) v' do e3 done --> (%prim raise) v'
 
 intn1 <= intn2
 ------------------------------------------------------- :: for_to_do
@@ -468,16 +431,6 @@ intn2 > intn1
 ------------------------------------------------------- :: for_downto_done
 |- for x = intn1 downto intn2 do e done --> ()
 
-|- e -->L e'
-------------------------------------------------------- :: try_ctx
-|- try e with pattern_matching -->L try e' with pattern_matching
-
-------------------------------------------------------- :: try_return
-|- try v with pattern_matching --> v
-
-------------------------------------------------------- :: try_catch
-|- try (%prim raise) v with pat_exp1 | ... | pat_expn --> match v with pat_exp1 | ... | pat_expn | _ -> ((%prim raise) v)
-
 {{ com
 We specify right-to-left evaluation order for tuples, applied variant
 constructors, and $\ottkw{::}$.
@@ -487,29 +440,17 @@ constructors, and $\ottkw{::}$.
 ------------------------------------------------------- :: tuple_ctx
 |- e1,..,em,e,v1,..,vn -->L e1,..,em,e',v1,..,vn
 
-------------------------------------------------------- :: tuple_raise
-|- e1, .., em, ((%prim raise) v), v1, .., vn --> (%prim raise) v
-
 |- e -->L e'
 ------------------------------------------------------- :: constr_ctx
 |- constr (e1,..,em,e,v1,..,vn) -->L constr (e1,..,em,e',v1,..,vn)
-
-------------------------------------------------------- :: constr_raise
-|- constr (e1, .., em, ((%prim raise) v), v1, .., vn) --> (%prim raise) v
 
 |- e -->L e'
 ------------------------------------------------------- :: cons_ctx1
 |- e0 :: e -->L e0 :: e'
 
-------------------------------------------------------- :: cons_raise1
-|- e :: ((%prim raise) v) --> (%prim raise) v
-
 |- e -->L e'
 ------------------------------------------------------- :: cons_ctx2
 |- e :: v -->L e' :: v
-
-------------------------------------------------------- :: cons_raise2
-|- ((%prim raise) v) :: v' --> (%prim raise) v
 
 >>
  <<
@@ -533,14 +474,6 @@ the field ordering in the record type definition.
 \ottbreakconclusionlinefalse
 }}
 
-------------------------------------------------------- :: record_raise
-|- {fn1=e1;...;fnm=em;fn=(%prim raise) v;fn1'=v1;...;fnn'=vn} --> (%prim raise) v
-
-{{ com
-The bytecode implementation appears to evaluate the leftmost position first in
-$\ottkw{with}$ expressions, so we follow that here. 
-}}
-
 {{ com
 \ottbreakconclusionlinetrue
 }}
@@ -554,15 +487,9 @@ $\ottkw{with}$ expressions, so we follow that here.
 \ottbreakconclusionlinefalse
 }}
 
-------------------------------------------------------- :: record_with_raise1
-|- {v' with fn1=e1;...;fnm=em; fn=(%prim raise) v; fn1'=v1;...;fnn'=vn} --> (%prim raise) v
-
 |- e -->L e'
 ------------------------------------------------------- :: record_with_ctx2
 |- {e with field_name1=e1;...;field_namen=en} -->L {e' with field_name1=e1;...;field_namen=en}
-
-------------------------------------------------------- :: record_raise_ctx2
-|- {(%prim raise) v with field_name1=e1;...;field_namen=en} --> (%prim raise) v
 
 {{ com
 \ottbreakconclusionlinetrue
@@ -588,32 +515,12 @@ field_name notin fn1...fnm
 ------------------------------------------------------- :: record_access_ctx 
 |- e.field_name -->L e'.field_name
 
-------------------------------------------------------- :: record_access_raise
-|- ((%prim raise) v).field_name --> (%prim raise) v
-
 field_name notin fn1...fnn
 ------------------------------------------------------- :: record_access 
 |- {fn1=v1;...;fnn=vn;field_name=v;fn1'=v1';...;fnm'=vm'}.field_name --> v
 
  >>
-<<
 
-|- e -->L e'
-------------------------------------------------------- :: assert_ctx
-|- assert e -->L assert e'
-
-------------------------------------------------------- :: assert_raise
-|- assert ((%prim raise) v) --> (%prim raise) v
-
-------------------------------------------------------- :: assert_true
-|- assert true --> ()
-
-------------------------------------------------------- :: assert_false
-|- assert false --> (%prim raise) Assert_failure 
-
-
-
->>
  <<
 defns 
 JRdefn :: J ::=
@@ -623,7 +530,7 @@ defn
 {{ com Definition sequence evaluation }}
 {{ tex \vdash \langle [[definitions]] , [[program]] \rangle [[labelled_arrow]] \langle [[definitions']] , [[program']] \rangle }} by
 {{ com
-Reduces a definition one-step.  Type and exception definitions are moved into
+Reduces a definition one-step.  Type definitions are moved into
 the tuple left sequence as encountered to support typing of intermediate
 states.
 }}
@@ -632,16 +539,9 @@ states.
 ------------------------------------------------------- :: let_ctx
 |- <ds_value, let pat = e ;; definitions> -->L <ds_value, let pat = e' ;; definitions>
 
-------------------------------------------------------- :: let_raise
-|- <ds_value, let pat = (%prim raise) v ;; definitions> --> <ds_value, (%prim raise) v>
-
 |- v matches pat gives <<x1<-v1,..,xm<-vm>>
 ------------------------------------------------------- :: let_match
 |- <ds_value, let pat = v ;; definitions> --> <ds_value, <<x1<-remv_tyvar v1,..,xm<-remv_tyvar vm>>definitions>
-
-|- v notmatches pat
-------------------------------------------------------- :: let_not_match
-|- <ds_value, let pat = v ;; definitions> --> <ds_value, (%prim raise) Match_failure>
 
 letrec_bindings = x1 = function pattern_matching1 and ... and xn = function pattern_matchingn 
 recfun(letrec_bindings, pattern_matching1) gives e1 ... recfun(letrec_bindings, pattern_matchingn) gives en
@@ -651,8 +551,6 @@ recfun(letrec_bindings, pattern_matching1) gives e1 ... recfun(letrec_bindings, 
 ------------------------------------------------------- :: type
 |- <ds_value, type_definition ;; definitions> --> <ds_value ;; type_definition, definitions>
 
-------------------------------------------------------- :: exn
-|- <ds_value, exception_definition ;; definitions> --> <ds_value ;; exception_definition, definitions>
  >>
 <<
 
@@ -734,7 +632,7 @@ defn
 
 {{ com
 This relation describes expressions whose behaviour is defined. This includes
-values, expressions that reduce, and raised exceptions. An expression with no
+values and expressions that reduce. An expression with no
 behaviour is said to be stuck.  In this definition of expression behaviour, we
 treat any reducing expression as behaving, no matter what (satisfiable)
 constraint is imposed on the label.
@@ -747,8 +645,6 @@ constraint is imposed on the label.
 ---------------------------------------------------------------- :: reduces
 |- e behaves
 
----------------------------------------------------------------- :: raises
-|- (%prim raise) v behaves
 
 
 
@@ -764,8 +660,8 @@ defn
 {{ com structure body behaviour }} by
 
 {{ com
-As for expressions, a definition sequence behaves if it is a value, if it
-reduces (under any label), or if it raises an exception.
+As for expressions, a definition sequence behaves if it is a value or if it
+reduces (under any label).
 }}
 
 ---------------------------------------------------------------- :: value
@@ -774,9 +670,6 @@ reduces (under any label), or if it raises an exception.
 |- <definitions_value, program, store> --> <definitions', program', store'>
 ---------------------------------------------------------------- :: reduces
 |- <definitions_value, program, store> behaves
-
----------------------------------------------------------------- :: raises
-|- <definitions_value, (%prim raise) v, store> behaves
 
  >>
 <<
