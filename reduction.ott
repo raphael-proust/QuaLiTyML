@@ -45,11 +45,11 @@ Determines if a value matches a pattern.
 ------------------------------------------------------- :: tuple
 |- (v1,....,vn) matches (pat1,....,patn)
 
-%d field_name1'=v1'...field_namen'=vn' fn1=v1''..fnl=vl'' PERMUTES field_name1=v1...field_namem=vm
-%d |- v1' matches pat1  ...   |- vn' matches patn
-%d field_name1 ... field_namem distinct
-%d----------------------------------------------------- :: record
-%d |- {field_name1=v1;...;field_namem=vm} matches {field_name1'=pat1;...;field_namen'=patn}
+  field_name1'=v1'...field_namen'=vn' fn1=v1''..fnl=vl'' PERMUTES field_name1=v1...field_namem=vm
+  |- v1' matches pat1  ...   |- vn' matches patn
+  field_name1 ... field_namem distinct
+ ----------------------------------------------------- :: record
+  |- {field_name1=v1;...;field_namem=vm} matches {field_name1'=pat1;...;field_namen'=patn}
 
 |- v1 matches pat1
 |- v2 matches pat2
@@ -106,11 +106,11 @@ patterns.
 ------------------------------------------------------- :: tuple
 |- (v1,....,vn) matches (pat1,....,patn) gives <<substs_x1@....@substs_xn>>
 
-%d field_name1'=v1'...field_namen'=vn' fn1=v1''..fnl=vl'' PERMUTES field_name1=v1...field_namem=vm
-%d |- v1' matches pat1 gives <<substs_x1>>   ...   |- vn' matches patn gives <<substs_xn>>
-%d field_name1 ... field_namem distinct
-%d----------------------------------------------------- :: record
-%d |- {field_name1=v1;...;field_namem=vm} matches {field_name1'=pat1;...;field_namen'=patn} gives <<substs_x1@...@substs_xn>>
+  field_name1'=v1'...field_namen'=vn' fn1=v1''..fnl=vl'' PERMUTES field_name1=v1...field_namem=vm
+  |- v1' matches pat1 gives <<substs_x1>>   ...   |- vn' matches patn gives <<substs_xn>>
+  field_name1 ... field_namem distinct
+ ----------------------------------------------------- :: record
+  |- {field_name1=v1;...;field_namem=vm} matches {field_name1'=pat1;...;field_namen'=patn} gives <<substs_x1@...@substs_xn>>
 
 |- v1 matches pat1 gives <<substs_x1>>
 |- v2 matches pat2 gives <<substs_x2>>
@@ -246,10 +246,10 @@ constr noteq constr'
 |- constr (v1, ..., vn) = constr' --> false
 
 
-%d v' = {fn1''=v1''; ...; fnm''=vm''}
-%d fn1...fnn PERMUTES fn1''...fnm''
-%d----------------------------------------------------- :: equal_rec
-%d |- {fn1=v1; ...; fnn=vn} = v' --> AND(((%prim =) v1) (v'.fn1) && ... && ((%prim =) vn) (v'.fnn))
+  v' = {fn1''=v1''; ...; fnm''=vm''}
+  fn1...fnn PERMUTES fn1''...fnm''
+ ----------------------------------------------------- :: equal_rec
+  |- {fn1=v1; ...; fnn=vn} = v' --> AND(((%prim =) v1) (v'.fn1) && ... && ((%prim =) vn) (v'.fnn))
 
 ------------------------------------------------------- :: plus
 |- intn1 + intn2 --> intn1 .+ intn2
@@ -512,7 +512,7 @@ constructors, and $\ottkw{::}$.
 |- ((%prim raise) v) :: v' --> (%prim raise) v
 
 >>
-%d<<
+ <<
 
 {{ com
 We specify right-to-left evaluation for records.  The bytecode implementation
@@ -595,7 +595,7 @@ field_name notin fn1...fnn
 ------------------------------------------------------- :: record_access 
 |- {fn1=v1;...;fnn=vn;field_name=v;fn1'=v1';...;fnm'=vm'}.field_name --> v
 
-%d>>
+ >>
 <<
 
 |- e -->L e'
@@ -614,7 +614,7 @@ field_name notin fn1...fnn
 
 
 >>
-%d<<
+ <<
 defns 
 JRdefn :: J ::=
 
@@ -653,7 +653,7 @@ recfun(letrec_bindings, pattern_matching1) gives e1 ... recfun(letrec_bindings, 
 
 ------------------------------------------------------- :: exn
 |- <ds_value, exception_definition ;; definitions> --> <ds_value ;; exception_definition, definitions>
-%d>>
+ >>
 <<
 
 defns
@@ -702,7 +702,7 @@ st(l) unallocated
 
 
 >>
-%d<<
+ <<
 defns
 JRtop :: JR ::=
 
@@ -723,7 +723,7 @@ same label.
 -------------------------------------------------------------------------------------- :: defs
 |- <definitions_value, program, store> --> <definitions, program', store'>
 
-%d>>
+ >>
 <<
 
 
@@ -753,7 +753,7 @@ constraint is imposed on the label.
 
 
 >>
-%d<<
+ <<
 
 defns
 Jdbehaviour :: JRB_ ::=
@@ -778,7 +778,7 @@ reduces (under any label), or if it raises an exception.
 ---------------------------------------------------------------- :: raises
 |- <definitions_value, (%prim raise) v, store> behaves
 
-%d>>
+ >>
 <<
 
 
@@ -799,7 +799,7 @@ Hint Constructors JM_matchP JM_match
                   JRB_ebehaviour
                   : rules.
 }}
-%dembed
-%d{{ coq
-%dHint Constructors JRdefn JRtop JRB_dbehaviour : rules.
-%d}}
+ embed
+ {{ coq
+ Hint Constructors JRdefn JRtop JRB_dbehaviour : rules.
+ }}

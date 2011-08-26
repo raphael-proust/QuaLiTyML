@@ -17,8 +17,7 @@ e.g.,
 }
 \makeatother
 \newif\ifHAVEtypedefinitions \newif\ifHAVEmodules
-%d\HAVEtypedefinitionstrue
-%m\HAVEmodulestrue
+ \HAVEtypedefinitionstrue
 
 \title{QuaLiTyML}
 \author{Raphael Proust}
@@ -187,21 +186,15 @@ grammar
     | capitalized_ident                                 ::   :: id
   typeconstr_name, tcn :: TCN_ ::=  {{ coq-equality }}
     | lowercase_ident                                   ::   :: id
-%d field_name , fn :: FN_  ::=  {{ coq-equality }}
-%d  | lowercase_ident                                   :: d :: id
-%m module_name , M :: MN_  ::= {{ coq-equality }}
-%m  | capitalized_ident                                 :: m :: id
-%m modtype_name  :: MTN_ ::= {{ coq-equality }}
-%m  | ident                                             :: m :: id
+  field_name , fn :: FN_  ::=  {{ coq-equality }}
+   | lowercase_ident                                   :: d :: id
 
   %% 6.3 (Referring to named objects) http://caml.inria.fr/pub/docs/manual-ocaml/manual011.html#value-path
   value_path :: VP_  ::= {{ coq-equality }}
     | value_name                                        ::   :: name
-%m  |  module_path . value_name                         :: m :: path
   constr :: C_   ::= {{ coq-equality }}
       {{ com constructors: named, and built-in (including exceptions) }}
     | constr_name                                       ::   :: name
-%m  | module_path . constr_name                         :: m :: path
   %% 19.1 (Predefined exceptions) http://caml.inria.fr/pub/docs/manual-ocaml/manual033.html
     | Invalid_argument                                  :: L :: invalidargument
     | Not_found                                         :: L :: notfound
@@ -214,7 +207,6 @@ grammar
   typeconstr :: TC_  ::= {{ coq-equality }}
       {{ com type constructors: named, and built-in }}
     | typeconstr_name                                   ::   :: name
-%m  | extended_module_path . typeconstr_name            :: m :: epath
   %% 19.1 (Built-in types) http://caml.inria.fr/pub/docs/manual-ocaml/manual033.html
     | int                                               :: L :: int
     | char                                              :: L :: char
@@ -227,19 +219,9 @@ grammar
     | option                                            :: L :: option
   %% Pervasives http://caml.inria.fr/pub/docs/manual-ocaml/libref/Pervasives.html
     | ref                                               :: L :: ref
-%d field :: F_  ::= {{ coq-equality }}
-%d  | field_name                                        :: d :: name
-%d% |  module_path . field_name                         :: d :: path
-%m module_path , mp :: MP_  ::= {{ coq-equality }}
-%m  | module_name                                       :: m :: name
-%m  |  module_path . module_name                        :: m :: path
-%m extended_module_path :: EMP_ ::= {{ coq-equality }}
-%m  | module_name                                       :: m :: name
-%m  |  extended_module_path . module_name               :: m :: epath
-%m  |  extended_module_path ( extended_module_path )    :: m ::
-%m modtype_path :: MTP_ ::= {{ coq-equality }}
-%m  | modtype_name                                      :: m :: name
-%m  |  extended_module_path . modtype_name              :: m :: epath
+  field :: F_  ::= {{ coq-equality }}
+   | field_name                                        :: d :: name
+ % |  module_path . field_name                         :: d :: path
 
   idx, num :: '' ::=
       {{ coq nat }}
@@ -396,8 +378,8 @@ grammar
         (+ xs = {} +)
     | pattern1 , .... , patternn                        ::   :: tuple
         (+ xs = xs(pattern1....patternn) +)
-%d  | { field1 = pattern1 ; ... ; fieldn = patternn }   :: d :: record
-%d      (+ xs = xs(pattern1...patternn) +)
+   | { field1 = pattern1 ; ... ; fieldn = patternn }   :: d :: record
+       (+ xs = xs(pattern1...patternn) +)
     | [ pattern1 ; ... ; patternn ]                     :: S L :: list
         {{ coq (fold_right P_cons CONST_nil [[pattern1...patternn]]) }}
         {{ hol (FOLDR P_cons e l (P_constant CONST_nil) [[pattern1...patternn]]) }}
@@ -450,8 +432,8 @@ grammar
         {{ coq (fold_right Expr_const CONST_nil [[expr1...exprn]]) }}
         {{ hol (FOLDR Expr_cons (Expr_constant CONST_nil) [[expr1...exprn]]) }}
         {{ isa (foldr Expr_cons [[expr1...exprn]] (Expr_constant CONST_nil)) }}
-%d  | { field1 = expr1 ; ... ; fieldn = exprn }         :: d :: record
-%d  | { expr with field1 = expr1 ; ... ; fieldn = exprn } :: d :: override
+   | { field1 = expr1 ; ... ; fieldn = exprn }         :: d :: record
+   | { expr with field1 = expr1 ; ... ; fieldn = exprn } :: d :: override
     | expr1 expr2                                       ::   :: apply
     | prefix_symbol expr                                :: S :: applyp
         {{ ich (Expr_apply (Expr_ident (VP_name (VN_op [[prefix_symbol]]))) [[expr]]) }}
@@ -464,7 +446,7 @@ grammar
         {{ isa (foldr Expr_and [[expr1..exprn]] (Expr_constant CONST_true)) }}
         {{ com a delimited ``and'' operator with a list of arguments }}
     | expr1 || expr2                                    :: L :: or
-%d  | expr . field                                      :: d :: field
+   | expr . field                                      :: d :: field
 %   | expr . field <- expr                              :: d :: setfield
     | if expr0 then expr1                               :: S :: ifthen
         {{ ich (Expr_ifthenelse [[expr0]] [[expr1]] (Expr_constant CONST_unit)) }}
@@ -559,7 +541,7 @@ grammar
         {{ ich (LRB_simple [[value_name]] (PM_pm [PE_inj [[pattern]] (fold_pats [[pattern1..patternn]] (Expr_typed [[expr]] [[typexpr]]))])) }}
 
 >>
-%d<<
+ <<
 
  %% 6.8.1 (Type definitions) http://caml.inria.fr/pub/docs/manual-ocaml/manual016.html#type-definition
 
@@ -647,11 +629,6 @@ grammar
         (+ xs = {} +)
     | exception_definition                              :: d :: exception
         (+ xs = {} +)
-%m% | module module_name { ( module_name : module_type ) }  [ : module_type ]  = module_expr :: m :: functor
-%m  | module_definition                                 :: m :: module
-%m  | module type modtype_name  =  module_type          :: m :: modtype
-%m% | open module_path                                  :: m ::  open
-%m% | include module_expr                               :: m ::  include
 
   definitions , ds :: Ds_ ::=
     |                                                   :: d :: nil 
@@ -673,7 +650,7 @@ grammar
   program :: Prog_ ::=
     | definitions                                       :: d :: defs
     | (%prim raise) expr                                :: d :: raise
-%d>>
+ >>
 <<
 
  %% Gadgets for the type system and semantics that are not in the source syntax.  
@@ -690,7 +667,7 @@ grammar
     | constr ( value1 , .. , valuen )                   :: I :: construct
     | value1 '::' value2                                :: I L :: cons
     | [ value1 ; ... ; valuen ]                         :: I L :: list
-%d  | { field1 = value1 ; ... ; fieldn = valuen }       :: I d :: record
+   | { field1 = value1 ; ... ; fieldn = valuen }       :: I d :: record
     | function pattern_matching                         :: I :: function
     | fun pattern1 ... patternn -> expr                  :: I :: func
     | location                                          :: I :: location
@@ -705,7 +682,7 @@ V_tuple <= V_construct
 grammar
 
 >>
-%d<<
+ <<
   definition_value , d_value :: DV_ ::=
     | type_definition                                   :: d I :: type
     | exception_definition                              :: d I :: exception
@@ -714,7 +691,7 @@ grammar
     |                                                   :: d I :: nil
     | definition_value definitions_value                :: d I :: cons
     | definition_value ;; definitions_value             :: d I :: cons_semi
-%d>>
+ >>
 <<
 
   non_expansive , nexp :: Nexp_ ::=
@@ -731,7 +708,7 @@ grammar
     | constr ( nexp1 , .. , nexpn )                     :: I :: construct
     | nexp1 '::' nexp2                                  :: I :: cons
     | [ nexp1 ; ... ; nexpn ]                           :: I L :: list
-%d  | { field1 = nexp1 ; ... ; fieldn = nexpn }         :: I d :: record
+   | { field1 = nexp1 ; ... ; fieldn = nexpn }         :: I d :: record
     | let rec letrec_bindings in nexp                   :: I :: letrec
     | function pattern_matching                         :: I :: function
     | fun pattern1 ... patternn -> expr                 :: I :: func
@@ -774,9 +751,9 @@ name :: name_ ::= {{ coq-equality }}
       {{ com environment lookup key }}
     | TV                                                :: I :: tv
     | value_name                                        :: I :: vn
-%d  | constr_name                                       :: d I :: cn
-%d  | typeconstr_name                                   :: d I :: tcn
-%d  | field_name                                        :: d I :: fn
+   | constr_name                                       :: d I :: cn
+   | typeconstr_name                                   :: d I :: tcn
+   | field_name                                        :: d I :: fn
     | location                                          :: I :: l
 
 names :: names_ ::= 
@@ -800,21 +777,21 @@ environment_binding , EB :: EB_ ::=
     | value_name : typexpr                              :: M I :: vntype
         {{ com value binding with no universal quantifier }}
         {{ ich (EB_vn [[value_name]] (TS_forall (shiftt 0 1 [[typexpr]]))) }}
-%d  | constr_name of typeconstr                         :: d I :: cc
-%d      {{ com constant constructor }}
-%d  | constr_name of forall type_params_opt , ( typexprs ) : typeconstr :: d I :: pc
-%d      (+ bind typevars(type_params_opt) in typexprs +)
-%d      {{ com parameterised constructor }}
-%d  | field_name : forall type_params_opt , typeconstr_name -> typexpr ::  d I :: fn
-%d      (+ bind typevars(type_params_opt) in typexpr +)
-%d      {{ com field name a record destructor }}
-%d  | typeconstr_name : kind                            :: d I :: td
-%d      {{ com type name, bound to a fresh type }}
-%d  | typeconstr_name : kind { field_name1 ; ... ; field_namen } :: d I :: tr
-%d      {{ com type name which is a record type definition }}
-%d  | type_params_opt typeconstr_name = typexpr         :: d I :: ta
-%d      (+ bind typevars(type_params_opt) in typexpr +)
-%d      {{ com type name which is an abbreviation }}
+   | constr_name of typeconstr                         :: d I :: cc
+       {{ com constant constructor }}
+   | constr_name of forall type_params_opt , ( typexprs ) : typeconstr :: d I :: pc
+       (+ bind typevars(type_params_opt) in typexprs +)
+       {{ com parameterised constructor }}
+   | field_name : forall type_params_opt , typeconstr_name -> typexpr ::  d I :: fn
+       (+ bind typevars(type_params_opt) in typexpr +)
+       {{ com field name a record destructor }}
+   | typeconstr_name : kind                            :: d I :: td
+       {{ com type name, bound to a fresh type }}
+   | typeconstr_name : kind { field_name1 ; ... ; field_namen } :: d I :: tr
+       {{ com type name which is a record type definition }}
+   | type_params_opt typeconstr_name = typexpr         :: d I :: ta
+       (+ bind typevars(type_params_opt) in typexpr +)
+       {{ com type name which is an abbreviation }}
     | location : typexpr                                :: I :: l
         {{ com location (memory cell) }}
     | ( EB )                                            :: M I :: paren
@@ -869,11 +846,11 @@ subrules
    src_typexpr <:: typexpr
 
 >>
-%d<<
+ <<
 subrules
   definition_value <:: definition
   definitions_value <:: definitions
-%d>>
+ >>
 <<
 
 freevars typexpr typevar :: ftv
@@ -947,10 +924,10 @@ grammar
         {{ coq (~In [[name]] [[names]]) }}
         {{ hol (~MEM [[name]] [[names]]) }}
         {{ isa (~( [[name]] mem [[names]])) }}
-%d  | field_name in field_name1 .. field_namen          :: d :: fn_in_fns
-%d      {{ coq (In [[field_name]] [[field_name1..field_namen]]) }}
-%d      {{ hol (MEM [[field_name]] [[field_name1..field_namen]]) }}
-%d      {{ isa ([[field_name]] mem [[field_name1..field_namen]]) }}
+   | field_name in field_name1 .. field_namen          :: d :: fn_in_fns
+       {{ coq (In [[field_name]] [[field_name1..field_namen]]) }}
+       {{ hol (MEM [[field_name]] [[field_name1..field_namen]]) }}
+       {{ isa ([[field_name]] mem [[field_name1..field_namen]]) }}
     | type_param in type_params_opt                     ::   :: typevar_in_typevars
         {{ coq (In [[type_param]] (match [[type_params_opt]] with TPS_nary x => x end)) }}
         {{ hol (MEM [[type_param]] (case [[type_params_opt]] of TPS_nary x -> x)) }}
@@ -967,14 +944,14 @@ grammar
         {{ coq (Permutation [[E]] [[E']]) }}
         {{ hol (PERM ([[E]]) ([[E']])) }}
         {{ isa (perm ([[E]]) ([[E']])) }}
-%d  | fn1 .. fnn PERMUTES fn1' .. fnm'                  :: d :: permutes_field_name
-%d      {{ coq (Permutation [[fn1..fnn]] [[fn1'..fnm']]) }}
-%d      {{ hol (PERM ([[fn1..fnn]]) ([[fn1'..fnm']])) }}
-%d      {{ isa (perm ([[fn1..fnn]]) ([[fn1'..fnm']])) }}
-%d  | fn1 = e1 .. fnn = en PERMUTES fn1' = e1' .. fnm' = em' :: d :: permutes_field_name_expr
-%d      {{ coq (Permutation [[fn1 e1..fnn en]] [[fn1' e1'..fnm' em']]) }}
-%d      {{ hol (PERM ([[fn1 e1..fnn en]]) ([[fn1' e1'..fnm' em']])) }}
-%d      {{ isa (perm ([[fn1 e1..fnn en]]) ([[fn1' e1'..fnm' em']])) }}
+   | fn1 .. fnn PERMUTES fn1' .. fnm'                  :: d :: permutes_field_name
+       {{ coq (Permutation [[fn1..fnn]] [[fn1'..fnm']]) }}
+       {{ hol (PERM ([[fn1..fnn]]) ([[fn1'..fnm']])) }}
+       {{ isa (perm ([[fn1..fnn]]) ([[fn1'..fnm']])) }}
+   | fn1 = e1 .. fnn = en PERMUTES fn1' = e1' .. fnm' = em' :: d :: permutes_field_name_expr
+       {{ coq (Permutation [[fn1 e1..fnn en]] [[fn1' e1'..fnm' em']]) }}
+       {{ hol (PERM ([[fn1 e1..fnn en]]) ([[fn1' e1'..fnm' em']])) }}
+       {{ isa (perm ([[fn1 e1..fnn en]]) ([[fn1' e1'..fnm' em']])) }}
     | |- value notmatches pattern                       ::   :: does_not_match
         {{ tex \neg([[value]]~\ottkw{matches}~[[pattern]]) }}
         {{ coq (~JM_matchP [[value]] [[pattern]]) }}

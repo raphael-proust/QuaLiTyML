@@ -24,23 +24,23 @@ dom(TV) gives TV
 ------------------------------------------------------- :: value_name
 dom(value_name:typescheme) gives value_name
 
-%d----------------------------------------------------- :: const_constr_name
-%d dom(constr_name of typeconstr) gives constr_name
+ ----------------------------------------------------- :: const_constr_name
+  dom(constr_name of typeconstr) gives constr_name
 
-%d----------------------------------------------------- :: constr_name
-%d dom(constr_name of forall type_params_opt, (t1, ..., tn) : typeconstr) gives constr_name
+ ----------------------------------------------------- :: constr_name
+  dom(constr_name of forall type_params_opt, (t1, ..., tn) : typeconstr) gives constr_name
 
-%d----------------------------------------------------- :: opaque_typeconstr_name
-%d dom(typeconstr_name:kind) gives typeconstr_name
+ ----------------------------------------------------- :: opaque_typeconstr_name
+  dom(typeconstr_name:kind) gives typeconstr_name
 
-%d----------------------------------------------------- :: trans_typeconstr_name
-%d dom(type_params_opt typeconstr_name = t) gives typeconstr_name
+ ----------------------------------------------------- :: trans_typeconstr_name
+  dom(type_params_opt typeconstr_name = t) gives typeconstr_name
 
-%d----------------------------------------------------- :: record_typeconstr_name
-%d dom(typeconstr_name : kind {field_name1; ...; field_namen}) gives typeconstr_name
-%d
-%d----------------------------------------------------- :: record_field_name
-%d dom(field_name:forall type_params_opt, typeconstr_name -> typexpr) gives field_name
+ ----------------------------------------------------- :: record_typeconstr_name
+  dom(typeconstr_name : kind {field_name1; ...; field_namen}) gives typeconstr_name
+ 
+ ----------------------------------------------------- :: record_field_name
+  dom(field_name:forall type_params_opt, typeconstr_name -> typexpr) gives field_name
 
 ------------------------------------------------------- :: location
 dom(location:t) gives location
@@ -155,64 +155,64 @@ E |- forall t : Type
 ------------------------------------------------------- :: value_name
 E, (value_name : forall t) |- ok
 
-%d E |- ok
-%d E |- typeconstr_name gives typeconstr_name : kind
-%d dom(E) gives names
-%d constr_name notin names
-%d----------------------------------------------------- :: constr_name_c
-%d E,(constr_name of typeconstr_name) |- ok
+  E |- ok
+  E |- typeconstr_name gives typeconstr_name : kind
+  dom(E) gives names
+  constr_name notin names
+ ----------------------------------------------------- :: constr_name_c
+  E,(constr_name of typeconstr_name) |- ok
 
-%d E |- ok
-%d dom(E) gives names
-%d constr_name notin names
-%d----------------------------------------------------- :: exn_constr_name_c
-%d E,(constr_name of exn) |- ok
+  E |- ok
+  dom(E) gives names
+  constr_name notin names
+ ----------------------------------------------------- :: exn_constr_name_c
+  E,(constr_name of exn) |- ok
 
-%d type_params_opt = (tv1, ..., tvm)
-%d E |- forall type_params_opt, t1 : Type ... E |- forall type_params_opt, tn : Type
-%d E |- typeconstr_name gives typeconstr_name : m -> Type
-%d dom(E) gives names
-%d constr_name notin names
-%d length (t1) ... (tn) >= 1
-%d :formula_length_list_type_param_eq:length (tv1) ... (tvm) = m
-%d----------------------------------------------------- :: constr_name_p
-%d E,(constr_name of forall (tv1, ..., tvm), (t1, ..., tn) : typeconstr_name) |- ok
+  type_params_opt = (tv1, ..., tvm)
+  E |- forall type_params_opt, t1 : Type ... E |- forall type_params_opt, tn : Type
+  E |- typeconstr_name gives typeconstr_name : m -> Type
+  dom(E) gives names
+  constr_name notin names
+  length (t1) ... (tn) >= 1
+  :formula_length_list_type_param_eq:length (tv1) ... (tvm) = m
+ ----------------------------------------------------- :: constr_name_p
+  E,(constr_name of forall (tv1, ..., tvm), (t1, ..., tn) : typeconstr_name) |- ok
 
-%d E |- t1 : Type ... E |- tn : Type 
-%d dom(E) gives names
-%d constr_name notin names
-%d length (t1) ... (tn) >= 1
-%d----------------------------------------------------- :: exn_constr_name_p
-%d E,(constr_name of forall , (t1, ..., tn) : exn) |- ok
+  E |- t1 : Type ... E |- tn : Type 
+  dom(E) gives names
+  constr_name notin names
+  length (t1) ... (tn) >= 1
+ ----------------------------------------------------- :: exn_constr_name_p
+  E,(constr_name of forall , (t1, ..., tn) : exn) |- ok
 
 
-%d E |- forall (tv1, ..., tvm), t : Type
-%d dom(E) gives names
-%d field_name notin names
-%d E |- typeconstr_name gives typeconstr_name:m->Type {field_name1; ...; field_namen}
-%d :formula_length_list_type_param_eq:length (tv1) ... (tvm) = m
-%d field_name in field_name1...field_namen
-%d ---------------------------------------------------- :: record_destr
-%d E, (field_name:forall (tv1, ..., tvm), typeconstr_name -> t) |- ok
+  E |- forall (tv1, ..., tvm), t : Type
+  dom(E) gives names
+  field_name notin names
+  E |- typeconstr_name gives typeconstr_name:m->Type {field_name1; ...; field_namen}
+  :formula_length_list_type_param_eq:length (tv1) ... (tvm) = m
+  field_name in field_name1...field_namen
+  ---------------------------------------------------- :: record_destr
+  E, (field_name:forall (tv1, ..., tvm), typeconstr_name -> t) |- ok
 
-%d E |- ok
-%d dom(E) gives names
-%d typeconstr_name notin names
-%d----------------------------------------------------- :: typeconstr_name
-%d E,(typeconstr_name : kind) |- ok
+  E |- ok
+  dom(E) gives names
+  typeconstr_name notin names
+ ----------------------------------------------------- :: typeconstr_name
+  E,(typeconstr_name : kind) |- ok
 
-%d dom(E) gives names
-%d typeconstr_name notin names
-%d E |- forall (tv1, ..., tvm), t : Type
-%d----------------------------------------------------- :: typeconstr_eqn
-%d E, ((tv1, ..., tvm) typeconstr_name = t) |- ok
+  dom(E) gives names
+  typeconstr_name notin names
+  E |- forall (tv1, ..., tvm), t : Type
+ ----------------------------------------------------- :: typeconstr_eqn
+  E, ((tv1, ..., tvm) typeconstr_name = t) |- ok
 
-%d E |- ok
-%d dom(E) gives names
-%d typeconstr_name notin names
-%d field_name1...field_namen distinct
-%d ---------------------------------------------------- :: typeconstr_record
-%d E, (typeconstr_name:kind {field_name1; ...; field_namen}) |- ok
+  E |- ok
+  dom(E) gives names
+  typeconstr_name notin names
+  field_name1...field_namen distinct
+  ---------------------------------------------------- :: typeconstr_record
+  E, (typeconstr_name:kind {field_name1; ...; field_namen}) |- ok
 
 E |- t : Type
 dom(E) gives names
@@ -230,21 +230,21 @@ built-in.  The result kind indicates how many parameters the type constructor
 expects.
 }}
 
-%d E |- ok
-%d E |- typeconstr_name gives typeconstr_name:kind
-%d----------------------------------------------------- :: abstract
-%d E |- typeconstr_name:kind
+  E |- ok
+  E |- typeconstr_name gives typeconstr_name:kind
+ ----------------------------------------------------- :: abstract
+  E |- typeconstr_name:kind
 
-%d E |- ok
-%d E |- typeconstr_name gives type_params_opt typeconstr_name=t
-%d |- type_params_opt : kind
-%d----------------------------------------------------- :: concrete
-%d E |- typeconstr_name:kind
+  E |- ok
+  E |- typeconstr_name gives type_params_opt typeconstr_name=t
+  |- type_params_opt : kind
+ ----------------------------------------------------- :: concrete
+  E |- typeconstr_name:kind
 
-%d E|- ok
-%d E |- typeconstr_name gives typeconstr_name:kind{field_name1; ...; field_namen}
-%d----------------------------------------------------- :: record
-%d E |- typeconstr_name:kind
+  E|- ok
+  E |- typeconstr_name gives typeconstr_name:kind{field_name1; ...; field_namen}
+ ----------------------------------------------------- :: record
+  E |- typeconstr_name:kind
 
 E |- ok
 ------------------------------------------------------- :: int
@@ -358,40 +358,40 @@ variant or record.  Therefore all type expressions have a canonical form
 obtained by expanding all type abbreviations.
 }}
 
-%d E |- t : Type
-%d----------------------------------------------------- :: refl
-%d E |- t == t
+  E |- t : Type
+ ----------------------------------------------------- :: refl
+  E |- t == t
 
-%d E |- t' == t
-%d----------------------------------------------------- :: sym
-%d E |- t == t'
+  E |- t' == t
+ ----------------------------------------------------- :: sym
+  E |- t == t'
 
-%d E |- t == t'
-%d E |- t' == t''
-%d----------------------------------------------------- :: trans
-%d E |- t == t''
+  E |- t == t'
+  E |- t' == t''
+ ----------------------------------------------------- :: trans
+  E |- t == t''
 
-%d E |- ok
-%d E |- typeconstr_name gives (typevar1, ..., typevarn) typeconstr_name=t
-%d E |- t1 : Type ... E |- tn : Type
-%d----------------------------------------------------- :: expand
-%d E |- (t1, ..., tn) typeconstr_name == <<typevar1<-t1, ..., typevarn<-tn>>t
+  E |- ok
+  E |- typeconstr_name gives (typevar1, ..., typevarn) typeconstr_name=t
+  E |- t1 : Type ... E |- tn : Type
+ ----------------------------------------------------- :: expand
+  E |- (t1, ..., tn) typeconstr_name == <<typevar1<-t1, ..., typevarn<-tn>>t
 
-%d E |- t1 == t1'
-%d E |- t2 == t2'
-%d----------------------------------------------------- :: arrow
-%d E |- t1 -> t2 == t1' -> t2'
+  E |- t1 == t1'
+  E |- t2 == t2'
+ ----------------------------------------------------- :: arrow
+  E |- t1 -> t2 == t1' -> t2'
 
-%d E |- t1 == t1' ....  E |- tn == tn'
-%d length (t1)....(tn) >= 2
-%d----------------------------------------------------- :: tuple
-%d E |- t1 * .... * tn == t1' * .... * tn'
+  E |- t1 == t1' ....  E |- tn == tn'
+  length (t1)....(tn) >= 2
+ ----------------------------------------------------- :: tuple
+  E |- t1 * .... * tn == t1' * .... * tn'
 
-%d :JTtypeconstr: E |- typeconstr : n -> Type
-%d E |- t1 == t1' ...  E |- tn == tn'
-%d length (t1)...(tn) = n
-%d----------------------------------------------------- :: constr
-%d E |- (t1, ..., tn) typeconstr == (t1', ..., tn') typeconstr
+  :JTtypeconstr: E |- typeconstr : n -> Type
+  E |- t1 == t1' ...  E |- tn == tn'
+  length (t1)...(tn) = n
+ ----------------------------------------------------- :: constr
+  E |- (t1, ..., tn) typeconstr == (t1', ..., tn') typeconstr
 
 defns
 JTidxsub :: JT ::=
@@ -517,7 +517,7 @@ E |- t <= ts
 E |- value_name:t
 
 >>
-%d<<
+ <<
 
 defns
 JTfield :: JT ::=
@@ -535,7 +535,7 @@ E |- (t1', ..., tm') typeconstr_name -> t'' <= forall (tv1, ..., tvm), (tv1, ...
 ------------------------------------------------------- :: name
 E |- field_name : (t1', ..., tm') typeconstr_name -> t''
 
-%d>>
+ >>
 <<
 
 defns
@@ -550,10 +550,10 @@ Non-constant constructors are attributed types for each argument as
 well as a return type.
 }}
 
-%d E |- constr_name gives constr_name of forall (tv1, ..., tvm), (t1,....,tn):typeconstr
-%d E |- (t1' * .... * tn') -> (t1'', ..., tm'') typeconstr <= forall (tv1, ..., tvm), (t1 * .... * tn) -> (tv1, ..., tvm) typeconstr
-%d----------------------------------------------------- :: name
-%d E |- constr_name : t1' .... tn' -> (t1'', ..., tm'') typeconstr
+  E |- constr_name gives constr_name of forall (tv1, ..., tvm), (t1,....,tn):typeconstr
+  E |- (t1' * .... * tn') -> (t1'', ..., tm'') typeconstr <= forall (tv1, ..., tvm), (t1 * .... * tn) -> (tv1, ..., tvm) typeconstr
+ ----------------------------------------------------- :: name
+  E |- constr_name : t1' .... tn' -> (t1'', ..., tm'') typeconstr
 
 E |- ok
 ------------------------------------------------------- :: invarg
@@ -576,18 +576,18 @@ Constant constructors are typed like non-constant constructors without
 arguments.
 }}
 
-%d E |- ok
-%d E |- constr_name gives constr_name of typeconstr_name
-%d E |- typeconstr_name gives typeconstr_name : n -> Type
-%d E |- t1 : Type ... E |- tn : Type
-%d length (t1) ... (tn) = n
-%d----------------------------------------------------- :: constr
-%d E |- constr_name : (t1, ..., tn) typeconstr_name
+  E |- ok
+  E |- constr_name gives constr_name of typeconstr_name
+  E |- typeconstr_name gives typeconstr_name : n -> Type
+  E |- t1 : Type ... E |- tn : Type
+  length (t1) ... (tn) = n
+ ----------------------------------------------------- :: constr
+  E |- constr_name : (t1, ..., tn) typeconstr_name
 
-%d E |- ok
-%d E |- constr_name gives constr_name of exn
-%d----------------------------------------------------- :: exn_constr
-%d E |- constr_name : exn 
+  E |- ok
+  E |- constr_name gives constr_name of exn
+ ----------------------------------------------------- :: exn_constr
+  E |- constr_name : exn 
 
 E |- ok
 ------------------------------------------------------- :: notfound
@@ -726,13 +726,13 @@ name1..namem distinct
 ------------------------------------------------------- :: tuple
 Tsigma & E |- pattern1,....,patternn : t1*....*tn gives E1@....@En
 
-%d Tsigma & E |- pattern1:t1 gives E1 ... Tsigma & E |- patternn:tn gives En
-%d E |- field_name1 : t->t1 ... E |- field_namen : t->tn
-%d length (pattern1)...(patternn) >= 1
-%d dom(E1@...@En) gives name1..namem
-%d name1..namem distinct
-%d----------------------------------------------------- :: record
-%d Tsigma & E |- {field_name1=pattern1; ...; field_namen=patternn} : t gives E1@...@En
+  Tsigma & E |- pattern1:t1 gives E1 ... Tsigma & E |- patternn:tn gives En
+  E |- field_name1 : t->t1 ... E |- field_namen : t->tn
+  length (pattern1)...(patternn) >= 1
+  dom(E1@...@En) gives name1..namem
+  name1..namem distinct
+ ----------------------------------------------------- :: record
+  Tsigma & E |- {field_name1=pattern1; ...; field_namen=patternn} : t gives E1@...@En
 
 Tsigma & E |- pattern : t gives E'
 Tsigma & E |- pattern' : t list gives E''
@@ -876,35 +876,35 @@ E |- t list == t'
 ------------------------------------------------------- :: cons
 Tsigma & E |- e1 :: e2 : t'
 
-%d Tsigma & E |- e1 : t1 ... Tsigma & E |- en : tn
-%d E |- field_name1 : t->t1 ... E |- field_namen : t->tn
-%d t = (t1', ..., tl') typeconstr_name
-%d E |- typeconstr_name gives typeconstr_name:kind {field_name1'; ...; field_namem'}
-%d field_name1...field_namen PERMUTES field_name1'...field_namem'
-%d length (e1)...(en)>=1
-%d E |- t == t'
-%d----------------------------------------------------- :: record_constr
-%d Tsigma & E |- {field_name1=e1; ...; field_namen=en} : t'
+  Tsigma & E |- e1 : t1 ... Tsigma & E |- en : tn
+  E |- field_name1 : t->t1 ... E |- field_namen : t->tn
+  t = (t1', ..., tl') typeconstr_name
+  E |- typeconstr_name gives typeconstr_name:kind {field_name1'; ...; field_namem'}
+  field_name1...field_namen PERMUTES field_name1'...field_namem'
+  length (e1)...(en)>=1
+  E |- t == t'
+ ----------------------------------------------------- :: record_constr
+  Tsigma & E |- {field_name1=e1; ...; field_namen=en} : t'
 
-%d Tsigma & E |- expr : t
-%d E |- field_name1 : t->t1 ... E |- field_namen : t->tn
-%d Tsigma & E |- e1 : t1 ... Tsigma & E |- en : tn
-%d field_name1...field_namen distinct
-%d length (e1) ... (en) >= 1
-%d E |- t == t'
-%d----------------------------------------------------- :: record_with
-%d Tsigma & E |- {expr with field_name1=e1; ...; field_namen=en} : t'
+  Tsigma & E |- expr : t
+  E |- field_name1 : t->t1 ... E |- field_namen : t->tn
+  Tsigma & E |- e1 : t1 ... Tsigma & E |- en : tn
+  field_name1...field_namen distinct
+  length (e1) ... (en) >= 1
+  E |- t == t'
+ ----------------------------------------------------- :: record_with
+  Tsigma & E |- {expr with field_name1=e1; ...; field_namen=en} : t'
 
 Tsigma & E |- e : t1 -> t
 Tsigma & E |- e1 : t1
 ------------------------------------------------------- :: apply
 Tsigma & E |- e e1 : t
 
-%d Tsigma & E |- e : t
-%d E |- field_name : t->t'
-%d E |- t' == t''
-%d----------------------------------------------------- :: record_proj
-%d Tsigma & E |- e.field_name : t''
+  Tsigma & E |- e : t
+  E |- field_name : t->t'
+  E |- t' == t''
+ ----------------------------------------------------- :: record_proj
+  Tsigma & E |- e.field_name : t''
 
 Tsigma & E |- e1 : bool
 Tsigma & E |- e2 : bool
@@ -1063,7 +1063,7 @@ Tsigma & E |- value_name1 = function pattern_matching1 and ... and value_namen =
 }}
 
 >>
-%d<<
+ <<
 
 defns 
 JTconstr_decl :: JT ::=
@@ -1292,7 +1292,7 @@ Tsigma & E |- v : t
 -------------------------------------------- :: raise
 E |- (%prim raise) v : :Env_list:
 
-%d>>
+ >>
 <<
 
 defns
@@ -1314,7 +1314,7 @@ E |- store : E'
 E |- store, l |-> v : E',(l:t)
 
 >>
-%d<<
+ <<
 
 defns
 JTtop :: JT ::=
@@ -1334,7 +1334,7 @@ E@E' |- store : E'
 ------------------------------------------------------- :: defs
 E |- <program, store> : E'@E''
 
-%d>>
+ >>
 <<
 
 
@@ -1445,9 +1445,9 @@ Hint Constructors JdomEB JdomE Jlookup_EB Jidx_bound
                   JTstore JTLin JTLout
                   : rules.
 }}
-%d{{ coq
-%dHint Constructors JTconstr_decl JTfield_decl JTtypedef JTtype_definition
-%d                  JTdefinition JTdefinitions
-%d                  JTprog JTtop
-%d                  : rules.
-%d}}
+ {{ coq
+ Hint Constructors JTconstr_decl JTfield_decl JTtypedef JTtype_definition
+                   JTdefinition JTdefinitions
+                   JTprog JTtop
+                   : rules.
+ }}
