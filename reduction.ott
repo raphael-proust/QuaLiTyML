@@ -39,7 +39,7 @@ Determines if a value matches a pattern.
 |- constr (v1,...,vn) matches constr (pat1,...,patn)
 
 ------------------------------------------------------- :: construct_any
-|- constr (v1,...,vn) matches constr _ 
+|- constr (v1,...,vn) matches constr _
 
 |- v1 matches pat1   ....   |- vn matches patn
 ------------------------------------------------------- :: tuple
@@ -160,7 +160,7 @@ Determines if an expression is a function value, for use in
 
 
 
-defns 
+defns
 JRuprim :: J ::=
 
 defn
@@ -193,7 +193,7 @@ carries the value read from the store when accessing a location.
 
 
 
-defns 
+defns
 JRbprim :: J ::=
 
 defn
@@ -353,7 +353,7 @@ Right-to-left evaluation order for application (i.e., argument before function).
 |- let pat = v in e --> <<x1<-v1,..,xm<-vm>>e
 
 
-letrec_bindings = x1 = function pattern_matching1 and ... and xn = function pattern_matchingn 
+letrec_bindings = x1 = function pattern_matching1 and ... and xn = function pattern_matchingn
 recfun(letrec_bindings, pattern_matching1) gives e1 ... recfun(letrec_bindings, pattern_matchingn) gives en
 ------------------------------------------------------- :: letrec
 |- let rec letrec_bindings in e --> <<x1 <- e1,...,xn <- en>>e
@@ -498,8 +498,8 @@ the field ordering in the record type definition.
 %%WIDTH: >>a4/landscape/normalsize
 length (v1'')...(vl'') >=1
 field_name notin fn1...fnm
-------------------------------------------------------- :: record_with_many 
-|- {{fn1=v1;...;fnm=vm;field_name=v;fn1'=v1';...;fnn'=vn'} with field_name=v'; fn1''=v1'';...;fnl''=vl''} --> {{fn1=v1;...;fnm=vm;field_name=v';fn1'=v1';...;fnn'=vn'} with fn1''=v1'';...;fnl''=vl''} 
+------------------------------------------------------- :: record_with_many
+|- {{fn1=v1;...;fnm=vm;field_name=v;fn1'=v1';...;fnn'=vn'} with field_name=v'; fn1''=v1'';...;fnl''=vl''} --> {{fn1=v1;...;fnm=vm;field_name=v';fn1'=v1';...;fnn'=vn'} with fn1''=v1'';...;fnl''=vl''}
 
 
 %%WIDTH: >>a4/landscape/normalsize
@@ -512,21 +512,21 @@ field_name notin fn1...fnm
 }}
 
 |- e -->L e'
-------------------------------------------------------- :: record_access_ctx 
+------------------------------------------------------- :: record_access_ctx
 |- e.field_name -->L e'.field_name
 
 field_name notin fn1...fnn
-------------------------------------------------------- :: record_access 
+------------------------------------------------------- :: record_access
 |- {fn1=v1;...;fnn=vn;field_name=v;fn1'=v1';...;fnm'=vm'}.field_name --> v
 
  >>
 
  <<
-defns 
+defns
 JRdefn :: J ::=
 
 defn
-|- < definitions , program > labelled_arrow < definitions' , program' > :: :: Rdefn :: defn_ 
+|- < definitions , program > labelled_arrow < definitions' , program' > :: :: Rdefn :: defn_
 {{ com Definition sequence evaluation }}
 {{ tex \vdash \langle [[definitions]] , [[program]] \rangle [[labelled_arrow]] \langle [[definitions']] , [[program']] \rangle }} by
 {{ com
@@ -543,7 +543,7 @@ states.
 ------------------------------------------------------- :: let_match
 |- <ds_value, let pat = v ;; definitions> --> <ds_value, <<x1<-remv_tyvar v1,..,xm<-remv_tyvar vm>>definitions>
 
-letrec_bindings = x1 = function pattern_matching1 and ... and xn = function pattern_matchingn 
+letrec_bindings = x1 = function pattern_matching1 and ... and xn = function pattern_matchingn
 recfun(letrec_bindings, pattern_matching1) gives e1 ... recfun(letrec_bindings, pattern_matchingn) gives en
 ------------------------------------------------------- :: letrec
 |- <ds_value, let rec letrec_bindings ;; definitions> --> <ds_value, <<x1<-remv_tyvar e1,...,xn<-remv_tyvar en>>definitions>
@@ -605,7 +605,7 @@ defns
 JRtop :: JR ::=
 
 defn
-|- < definitions , program , store > --> < definitions' , program' , store' > :: :: top :: top_ 
+|- < definitions , program , store > --> < definitions' , program' , store' > :: :: top :: top_
  {{ tex \vdash \langle [[definitions]] , [[program]] , [[store]] \rangle [[-->]] \langle [[definitions']] , [[program']] , [[store']] \rangle }}
  {{ com Top-level reduction }} by
 
@@ -655,7 +655,7 @@ defns
 Jdbehaviour :: JRB_ ::=
 
 defn
-|- < definitions , program , store > behaves :: :: dbehaviour :: behaviour_ 
+|- < definitions , program , store > behaves :: :: dbehaviour :: behaviour_
 {{ tex \vdash \langle [[definitions]] , [[program]] , [[store]] \rangle [[behaves]] }}
 {{ com structure body behaviour }} by
 

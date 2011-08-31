@@ -9,15 +9,9 @@ embed
   \expandafter\endgroup
   \@tempc#2
 }
-\newcommand{\ie}{
-i.e.,
-}
-\newcommand{\eg}{
-e.g.,
-}
+\newcommand{\ie}{ i.e., }
+\newcommand{\eg}{ e.g., }
 \makeatother
-\newif\ifHAVEtypedefinitions \newif\ifHAVEmodules
- \HAVEtypedefinitionstrue
 
 \title{QuaLiTyML}
 \author{Raphael Proust}
@@ -89,7 +83,7 @@ metavar  integer_literal ::=
       {{ lex numeral }}
       {{ coq Z }}
       {{ coq-equality }}
-      {{ hol word31 }} 
+      {{ hol word31 }}
       {{ holvar [[integer_literal]]w }}
       {{ isa int }}
 
@@ -228,17 +222,17 @@ grammar
     | 0 {{ tex 0 }} :: I :: 0
     | 1 {{ tex 1 }} :: I :: 1
     | 2 {{ tex 2 }} :: I :: 2
-    | m                                                 :: I :: N 
+    | m                                                 :: I :: N
         {{ ich [[m]] }}
-    | idx1 + idx2                                       :: I :: Add 
+    | idx1 + idx2                                       :: I :: Add
         {{ ich ([[idx1]] + [[idx2]]) }}
-    | ( num )			  		        :: S I :: paren 
+    | ( num )                                           :: S I :: paren
         {{ ich [[num]] }}
 
-  Tsigma {{ tex \sigma^T }} :: Tsigma_ ::= 
+  Tsigma {{ tex \sigma^T }} :: Tsigma_ ::=
       {{ coq list (typevar * typexpr) }}
-      {{ hol (typevar#typexpr) list }} 
-      {{ isa (typevar*typexpr) list }} 
+      {{ hol (typevar#typexpr) list }}
+      {{ isa (typevar*typexpr) list }}
       {{ com multiple substitutions of types for type variables }}
     | '<<' typevar1 <- typexpr1 , .. , typevarn <- typexprn '>>' :: I :: substs
         {{ ich [[typevar1 typexpr1..typevarn typexprn]] }}
@@ -300,10 +294,10 @@ grammar
 
   typescheme, ts :: TS_ ::=
     | forall typexpr                                    :: I :: forall
-    | shift num num' typescheme	                        :: I M :: shift
+    | shift num num' typescheme                         :: I M :: shift
         {{ ich (shiftts [[num]] [[num']] [[typescheme]]) }}
         {{ com shifts as in $[[Tsigma]]$ above }}
-  
+
   intn {{ tex \dot{n} }} :: Intn_ ::=
       {{ coq integer_literal }}
       {{ coq-equality }}
@@ -344,7 +338,7 @@ grammar
     | float_literal                                     :: L :: float
     | char_literal                                      :: L :: char
     | string_literal                                    :: L :: string
-    | equal_error_string				:: M L :: equal_error_string
+    | equal_error_string                                :: M L :: equal_error_string
         {{ hol (CONST_string "equal: functional value") }}
         {{ isa (CONST_string ''equal: functional value'') }}
         {{ coq (CONST_string string_equal_functional_value) }}
@@ -355,7 +349,7 @@ grammar
     | []                                                :: L :: nil
     | ()                                                :: L :: unit
 
-  %% 6.6 (Patterns) http://caml.inria.fr/pub/docs/manual-ocaml/patterns.html#pattern 
+  %% 6.6 (Patterns) http://caml.inria.fr/pub/docs/manual-ocaml/patterns.html#pattern
 
  pattern , pat :: P_ ::=
     | value_name                                        ::   :: var
@@ -401,7 +395,7 @@ grammar
  unary_prim :: Uprim_ ::=
       {{ com primitive functions with one argument }}
     | not                                               :: L I :: not
-    | ~-                                                :: L I :: minus 
+    | ~-                                                :: L I :: minus
     | ref                                               :: L I :: ref
     | !                                                 :: L I :: deref
  binary_prim :: Bprim_ ::=
@@ -414,7 +408,7 @@ grammar
     | :=                                                :: L I :: assign
 
  %% 6.7 (Expressions) http://caml.inria.fr/pub/docs/manual-ocaml/expr.html#expr
- 
+
  expr , e  :: Expr_ ::=
     | ( %prim unary_prim )                              :: L I :: uprim
         {{ com a unary primitive function value }}
@@ -566,7 +560,7 @@ grammar
         (+ constr_names = constr_names(type_representation) +)
         (+ field_names = field_names(type_representation) +)
 
-  type_equation :: TE_ ::= 
+  type_equation :: TE_ ::=
     | = typexpr                                         :: d :: te
 
   type_representation :: TR_ ::=
@@ -624,7 +618,7 @@ grammar
         (+ xs = {} +)
 
   definitions , ds :: Ds_ ::=
-    |                                                   :: d :: nil 
+    |                                                   :: d :: nil
     | definition definitions                            :: d :: cons
         (+ bind xs(definition) in definitions +)
     | definition ;; definitions                         :: S d :: cons_semi
@@ -639,13 +633,13 @@ grammar
         {{ com adding a definition to the end of a sequence }}
     | definitions ;; definition                         :: M d :: snoc_semi
         {{ ich (definitions_snoc [[definitions]] [[definition]]) }}
-    
+
   program :: Prog_ ::=
     | definitions                                       :: d :: defs
  >>
 <<
 
- %% Gadgets for the type system and semantics that are not in the source syntax.  
+ %% Gadgets for the type system and semantics that are not in the source syntax.
 
   value {{ coq core_value }} , v :: V_ ::=
       {{ com core value }}
@@ -711,8 +705,8 @@ Nexp_tuple <= Nexp_construct
 
 grammar
 
-  store , st :: STORE_ ::= 
-      {{ hol (([[location]]#[[expr]]) list) }} 
+  store , st :: STORE_ ::=
+      {{ hol (([[location]]#[[expr]]) list) }}
       {{ isa (([[location]]*[[expr]]) list) }}
       {{ coq list (location * expr)}}
     | empty                                             :: I :: empty
@@ -747,16 +741,16 @@ name :: name_ ::= {{ coq-equality }}
    | field_name                                        :: d I :: fn
     | location                                          :: I :: l
 
-names :: names_ ::= 
+names :: names_ ::=
       {{ coq list name }}
-      {{ hol (name list) }} 
+      {{ hol (name list) }}
       {{ isa (name list) }}
-    | name1 .. namen                                    :: I :: inj 
-        {{ ich [[name1..namen]] }} 
+    | name1 .. namen                                    :: I :: inj
+        {{ ich [[name1..namen]] }}
 
 typexprs :: typexprs_ ::=
     | typexpr1 , ... , typexprn                         :: I :: inj
-    | shift num num' typexprs				:: M I ::   shift
+    | shift num num' typexprs                           :: M I ::   shift
         {{ ich (shifttes [[num]] [[num']] [[typexprs]]) }}
         {{ com shift the indices in the types in [[typexprs]] by [[num]], ignoring indices lower than [[num']] }}
 
@@ -787,7 +781,7 @@ environment_binding , EB :: EB_ ::=
         {{ com location (memory cell) }}
     | ( EB )                                            :: M I :: paren
         {{ ich [[EB]] }}
-    | shift num num' EB					:: M I :: shift
+    | shift num num' EB                                 :: M I :: shift
         {{ ich (shiftEB [[num]] [[num']] [[EB]]) }}
         {{ com shift the indices in the types in [[EB]] by [[num]], ignoring indices lower than [[num']] }}
 
@@ -823,8 +817,8 @@ trans_label , L :: Lab_ ::=
         {{ ich [[L]] }}
         {{ tex [[L]] }}
 
-labelled_arrow :: LA_ ::= 
-      {{ ich trans_label }} 
+labelled_arrow :: LA_ ::=
+      {{ ich trans_label }}
       {{ tex \stackrel{\ottnt{L} }{\longrightarrow}\ottmaybebreakline }}
   | --> L                                               :: I :: inj
         {{ ich [[L]] }}
@@ -988,11 +982,11 @@ grammar
 embed {{ hol
 
 val _ = Define
-`fold_pat pats expr = FOLDR (\p e. Expr_function (PM_pm [PE_inj p e])) expr pats`; 
+`fold_pat pats expr = FOLDR (\p e. Expr_function (PM_pm [PE_inj p e])) expr pats`;
 
 val _ = ottDefine "shiftt"
 `([[:user_syntax__typexpr:shift m n typevar]] = [[:user_syntax__typexpr:typevar]]) /\
- ([[:user_syntax__typexpr:shift m n <idx, num>]] = 
+ ([[:user_syntax__typexpr:shift m n <idx, num>]] =
   if [[idx < m]] then [[:user_syntax__typexpr:<idx, num>]] else [[:user_syntax__typexpr:<idx+n, num>]]) /\
  ([[:user_syntax__typexpr:shift m n _]] = [[:user_syntax__typexpr:_]]) /\
  ([[:user_syntax__typexpr:shift m n (typexpr1->typexpr2)]] =
@@ -1006,22 +1000,22 @@ val _ = Define
 val _ = Define
 `([[shift m n forall typexpr]] = [[forall shift (m + 1) n typexpr]])`;
 
-val _ = Define 
+val _ = Define
 `([[:user_syntax__environment_binding:shift m n TV]] = [[:user_syntax__environment_binding:TV]]) /\
  ([[:user_syntax__environment_binding:shift m n value_name:typescheme]] =
   [[:user_syntax__environment_binding:value_name : shift m n typescheme]]) /\
- ([[:user_syntax__environment_binding:shift m n constr_name of typeconstr]] = 
+ ([[:user_syntax__environment_binding:shift m n constr_name of typeconstr]] =
   [[:user_syntax__environment_binding:constr_name of typeconstr]]) /\
  ([[:user_syntax__environment_binding:shift m n constr_name of forall type_params_opt, (typexprs) : typeconstr]] =
   [[:user_syntax__environment_binding:constr_name of forall type_params_opt, (shift m n typexprs) : typeconstr]]) /\
  ([[:user_syntax__environment_binding:shift m n field_name:forall type_params_opt, typeconstr_name -> typexpr]] =
   [[:user_syntax__environment_binding:field_name:forall type_params_opt, typeconstr_name -> shift m n typexpr]]) /\
- ([[:user_syntax__environment_binding:shift m n typeconstr_name:kind]] = 
+ ([[:user_syntax__environment_binding:shift m n typeconstr_name:kind]] =
   [[:user_syntax__environment_binding:typeconstr_name:kind]]) /\
  (shiftEB m n (EB_tr tcn k field_names) = EB_tr tcn k field_names) /\
  ([[:user_syntax__environment_binding:shift m n type_params_opt typeconstr_name = typexpr]] =
   [[:user_syntax__environment_binding:type_params_opt typeconstr_name = shift m n typexpr]]) /\
- ([[:user_syntax__environment_binding:shift m n location: typexpr]] = 
+ ([[:user_syntax__environment_binding:shift m n location: typexpr]] =
   [[:user_syntax__environment_binding:location: shift m n typexpr]])`;
 
 val num_tv_def = Define
@@ -1044,11 +1038,11 @@ val _ = ottDefine "remv_tyvar_typexpr"
 `(remv_tyvar_typexpr (TE_var typevar) = TE_any) /\
  (remv_tyvar_typexpr (TE_idxvar idx num) = TE_idxvar idx num) /\
  (remv_tyvar_typexpr TE_any = TE_any) /\
- (remv_tyvar_typexpr (TE_arrow typexpr1 typexpr2) = 
+ (remv_tyvar_typexpr (TE_arrow typexpr1 typexpr2) =
     TE_arrow (remv_tyvar_typexpr typexpr1) (remv_tyvar_typexpr typexpr2)) /\
  (remv_tyvar_typexpr (TE_tuple (typexpr_list)) =
     TE_tuple (MAP (\typexpr_. (remv_tyvar_typexpr typexpr_)) typexpr_list)) /\
- (remv_tyvar_typexpr (TE_constr (typexpr_list) typeconstr) = 
+ (remv_tyvar_typexpr (TE_constr (typexpr_list) typeconstr) =
     TE_constr (MAP (\typexpr_. (remv_tyvar_typexpr typexpr_)) typexpr_list) typeconstr)`;
 
 val _ = ottDefine "remv_tyvar_pattern"
@@ -1056,88 +1050,88 @@ val _ = ottDefine "remv_tyvar_pattern"
  (remv_tyvar_pattern P_any = P_any) /\
  (remv_tyvar_pattern (P_constant constant) = P_constant constant) /\
  (remv_tyvar_pattern (P_alias pattern value_name) =
-     P_alias (remv_tyvar_pattern pattern) value_name) /\  
- (remv_tyvar_pattern (P_typed pattern typexpr) = 
+     P_alias (remv_tyvar_pattern pattern) value_name) /\
+ (remv_tyvar_pattern (P_typed pattern typexpr) =
      P_typed (remv_tyvar_pattern pattern) (remv_tyvar_typexpr typexpr)) /\
- (remv_tyvar_pattern (P_or pattern1 pattern2) = 
+ (remv_tyvar_pattern (P_or pattern1 pattern2) =
      P_or (remv_tyvar_pattern pattern1) (remv_tyvar_pattern pattern2)) /\
- (remv_tyvar_pattern (P_construct constr (pattern_list)) = 
+ (remv_tyvar_pattern (P_construct constr (pattern_list)) =
      P_construct constr (MAP (\pattern_. (remv_tyvar_pattern pattern_)) pattern_list)) /\
  (remv_tyvar_pattern (P_construct_any constr) = P_construct_any constr) /\
- (remv_tyvar_pattern (P_tuple (pattern_list)) = 
+ (remv_tyvar_pattern (P_tuple (pattern_list)) =
      P_tuple (MAP (\pattern_. (remv_tyvar_pattern pattern_)) pattern_list)) /\
- (remv_tyvar_pattern (P_record (field_pattern_list)) = 
+ (remv_tyvar_pattern (P_record (field_pattern_list)) =
      P_record (MAP (\(field_,pattern_). (field_,(remv_tyvar_pattern pattern_))) field_pattern_list)) /\
- (remv_tyvar_pattern (P_cons pattern1 pattern2) = 
+ (remv_tyvar_pattern (P_cons pattern1 pattern2) =
      P_cons (remv_tyvar_pattern pattern1) (remv_tyvar_pattern pattern2))`;
 
 val _ = ottDefine "remv_tyvar_letrec_binding"
-`(remv_tyvar_letrec_binding (LRB_simple value_name pattern_matching) = 
+`(remv_tyvar_letrec_binding (LRB_simple value_name pattern_matching) =
      LRB_simple value_name (remv_tyvar_pattern_matching pattern_matching)) /\
- (remv_tyvar_letrec_bindings (LRBs_inj (letrec_binding_list)) = 
+ (remv_tyvar_letrec_bindings (LRBs_inj (letrec_binding_list)) =
      LRBs_inj (MAP (\letrec_binding_. (remv_tyvar_letrec_binding letrec_binding_)) letrec_binding_list)) /\
- (remv_tyvar_let_binding (LB_simple pattern expr) = 
+ (remv_tyvar_let_binding (LB_simple pattern expr) =
      LB_simple (remv_tyvar_pattern pattern) (remv_tyvar_expr expr)) /\
- (remv_tyvar_pat_exp (PE_inj pattern expr) = 
+ (remv_tyvar_pat_exp (PE_inj pattern expr) =
      PE_inj (remv_tyvar_pattern pattern) (remv_tyvar_expr expr)) /\
- (remv_tyvar_pattern_matching (PM_pm (pat_exp_list)) = 
+ (remv_tyvar_pattern_matching (PM_pm (pat_exp_list)) =
      PM_pm (MAP (\pat_exp_. (remv_tyvar_pat_exp pat_exp_)) pat_exp_list)) /\
  (remv_tyvar_expr (Expr_uprim unary_prim) = Expr_uprim unary_prim) /\
  (remv_tyvar_expr (Expr_bprim binary_prim) = Expr_bprim binary_prim) /\
  (remv_tyvar_expr (Expr_ident value_name) = Expr_ident value_name) /\
  (remv_tyvar_expr (Expr_constant constant) = Expr_constant constant) /\
- (remv_tyvar_expr (Expr_typed expr typexpr) = 
+ (remv_tyvar_expr (Expr_typed expr typexpr) =
      Expr_typed (remv_tyvar_expr expr) (remv_tyvar_typexpr typexpr)) /\
- (remv_tyvar_expr (Expr_tuple (expr_list)) = 
+ (remv_tyvar_expr (Expr_tuple (expr_list)) =
      Expr_tuple (MAP (\expr_. (remv_tyvar_expr expr_)) expr_list)) /\
  (remv_tyvar_expr (Expr_construct constr (expr_list)) =
      Expr_construct constr (MAP (\expr_. (remv_tyvar_expr expr_)) expr_list)) /\
- (remv_tyvar_expr (Expr_cons expr1 expr2) = 
+ (remv_tyvar_expr (Expr_cons expr1 expr2) =
      Expr_cons (remv_tyvar_expr expr1) (remv_tyvar_expr expr2)) /\
- (remv_tyvar_expr (Expr_record (field_expr_list)) = 
+ (remv_tyvar_expr (Expr_record (field_expr_list)) =
      Expr_record (MAP (\(field_,expr_). (field_,(remv_tyvar_expr expr_))) field_expr_list)) /\
- (remv_tyvar_expr (Expr_override expr (field_expr_list)) = 
-     Expr_override (remv_tyvar_expr expr) 
+ (remv_tyvar_expr (Expr_override expr (field_expr_list)) =
+     Expr_override (remv_tyvar_expr expr)
                    (MAP (\(field_,expr_). (field_,(remv_tyvar_expr expr_))) field_expr_list)) /\
- (remv_tyvar_expr (Expr_apply expr1 expr2) = 
+ (remv_tyvar_expr (Expr_apply expr1 expr2) =
      Expr_apply (remv_tyvar_expr expr1) (remv_tyvar_expr expr2)) /\
- (remv_tyvar_expr (Expr_and expr1 expr2) = 
+ (remv_tyvar_expr (Expr_and expr1 expr2) =
      Expr_and (remv_tyvar_expr expr1) (remv_tyvar_expr expr2)) /\
- (remv_tyvar_expr (Expr_or expr1 expr2) = 
+ (remv_tyvar_expr (Expr_or expr1 expr2) =
      Expr_or (remv_tyvar_expr expr1) (remv_tyvar_expr expr2)) /\
  (remv_tyvar_expr (Expr_field expr field) = Expr_field (remv_tyvar_expr expr) field) /\
- (remv_tyvar_expr (Expr_ifthenelse expr0 expr1 expr2) = 
+ (remv_tyvar_expr (Expr_ifthenelse expr0 expr1 expr2) =
      Expr_ifthenelse (remv_tyvar_expr expr0) (remv_tyvar_expr expr1) (remv_tyvar_expr expr2)) /\
- (remv_tyvar_expr (Expr_while expr1 expr2) = 
+ (remv_tyvar_expr (Expr_while expr1 expr2) =
      Expr_while (remv_tyvar_expr expr1) (remv_tyvar_expr expr2)) /\
- (remv_tyvar_expr (Expr_for x expr1 for_dirn expr2 expr3) = 
+ (remv_tyvar_expr (Expr_for x expr1 for_dirn expr2 expr3) =
      Expr_for x (remv_tyvar_expr expr1) for_dirn (remv_tyvar_expr expr2) (remv_tyvar_expr expr3))/\
- (remv_tyvar_expr (Expr_sequence expr1 expr2) = 
+ (remv_tyvar_expr (Expr_sequence expr1 expr2) =
      Expr_sequence (remv_tyvar_expr expr1) (remv_tyvar_expr expr2)) /\
- (remv_tyvar_expr (Expr_match expr pattern_matching) = 
+ (remv_tyvar_expr (Expr_match expr pattern_matching) =
      Expr_match (remv_tyvar_expr expr) (remv_tyvar_pattern_matching pattern_matching)) /\
- (remv_tyvar_expr (Expr_function pattern_matching) = 
+ (remv_tyvar_expr (Expr_function pattern_matching) =
      Expr_function (remv_tyvar_pattern_matching pattern_matching)) /\
- (remv_tyvar_expr (Expr_let let_binding expr) = 
+ (remv_tyvar_expr (Expr_let let_binding expr) =
      Expr_let (remv_tyvar_let_binding let_binding) (remv_tyvar_expr expr)) /\
- (remv_tyvar_expr (Expr_letrec letrec_bindings expr) = 
+ (remv_tyvar_expr (Expr_letrec letrec_bindings expr) =
      Expr_letrec (remv_tyvar_letrec_bindings letrec_bindings) (remv_tyvar_expr expr)) /\
  (remv_tyvar_expr (Expr_location location) = Expr_location location)`;
 
- 
+
 }}
 
 
 embed {{ isa
 
 constdefs fold_pat :: "pattern list => expr => expr"
-"fold_pat pats expr == foldr (% p e. Expr_function (PM_pm [PE_inj p e])) pats expr" 
+"fold_pat pats expr == foldr (% p e. Expr_function (PM_pm [PE_inj p e])) pats expr"
 
 consts shiftt :: "nat => nat => typexpr => typexpr"
 (*
-primrec 
+primrec
 "([[:user_syntax__typexpr:shift m n typevar]] = [[:user_syntax__typexpr:typevar]])"
-" ([[:user_syntax__typexpr:shift m n <idx, num>]] = 
+" ([[:user_syntax__typexpr:shift m n <idx, num>]] =
   (if [[idx < m]] then [[:user_syntax__typexpr:<idx, num>]] else [[:user_syntax__typexpr:<idx+n, num>]]) "
 " ([[:user_syntax__typexpr:shift m n _]] = [[:user_syntax__typexpr:_]])) "
 " ([[:user_syntax__typexpr:shift m n (typexpr1->typexpr2)]] =
@@ -1151,7 +1145,7 @@ consts shifttes :: "nat => nat => typexprs => typexprs"
 (*
 primrec
 "(shifttes m n (typexprs_inj tes) == typexprs_inj (map (shiftt m n) tes))"
-FIXME doesn't like rec call 
+FIXME doesn't like rec call
 *)
 
 consts shiftts :: "nat => nat => typescheme => typescheme"
@@ -1166,18 +1160,18 @@ primrec
 "([[:user_syntax__environment_binding:shift m n TV]] = [[:user_syntax__environment_binding:TV]])"
 "([[:user_syntax__environment_binding:shift m n value_name:typescheme]] =
   [[:user_syntax__environment_binding:value_name : shift m n typescheme]])"
-" ([[:user_syntax__environment_binding:shift m n constr_name of typeconstr]] = 
+" ([[:user_syntax__environment_binding:shift m n constr_name of typeconstr]] =
   [[:user_syntax__environment_binding:constr_name of typeconstr]]) "
 " ([[:user_syntax__environment_binding:shift m n constr_name of forall type_params_opt, (typexprs) : typeconstr]] =
   [[:user_syntax__environment_binding:constr_name of forall type_params_opt, (shift m n typexprs) : typeconstr]]) "
 " ([[:user_syntax__environment_binding:shift m n field_name:forall type_params_opt, typeconstr_name -> typexpr]] =
   [[:user_syntax__environment_binding:field_name:forall type_params_opt, typeconstr_name -> shift m n typexpr]]) "
-" ([[:user_syntax__environment_binding:shift m n typeconstr_name:kind]] = 
+" ([[:user_syntax__environment_binding:shift m n typeconstr_name:kind]] =
   [[:user_syntax__environment_binding:typeconstr_name:kind]]) "
 " (shiftEB m n (EB_tr tcn k field_names) = EB_tr tcn k field_names) "
 " ([[:user_syntax__environment_binding:shift m n type_params_opt typeconstr_name = typexpr]] =
   [[:user_syntax__environment_binding:type_params_opt typeconstr_name = shift m n typexpr]]) "
-" ([[:user_syntax__environment_binding:shift m n location: typexpr]] = 
+" ([[:user_syntax__environment_binding:shift m n location: typexpr]] =
   [[:user_syntax__environment_binding:location: shift m n typexpr]])"
 
 consts num_tv :: "environment => nat"
@@ -1204,11 +1198,11 @@ val _ = ottDefine "remv_tyvar_typexpr"
 `(remv_tyvar_typexpr (TE_var typevar) = TE_any) /\
  (remv_tyvar_typexpr (TE_idxvar idx num) = TE_idxvar idx num) /\
  (remv_tyvar_typexpr TE_any = TE_any) /\
- (remv_tyvar_typexpr (TE_arrow typexpr1 typexpr2) = 
+ (remv_tyvar_typexpr (TE_arrow typexpr1 typexpr2) =
     TE_arrow (remv_tyvar_typexpr typexpr1) (remv_tyvar_typexpr typexpr2)) /\
  (remv_tyvar_typexpr (TE_tuple (typexpr_list)) =
     TE_tuple (MAP (\typexpr_. (remv_tyvar_typexpr typexpr_)) typexpr_list)) /\
- (remv_tyvar_typexpr (TE_constr (typexpr_list) typeconstr) = 
+ (remv_tyvar_typexpr (TE_constr (typexpr_list) typeconstr) =
     TE_constr (MAP (\typexpr_. (remv_tyvar_typexpr typexpr_)) typexpr_list) typeconstr)`;
 *)
 
@@ -1218,73 +1212,73 @@ consts remv_tyvar_pattern :: "pattern => pattern"
  (remv_tyvar_pattern P_any = P_any) /\
  (remv_tyvar_pattern (P_constant constant) = P_constant constant) /\
  (remv_tyvar_pattern (P_alias pattern value_name) =
-     P_alias (remv_tyvar_pattern pattern) value_name) /\  
- (remv_tyvar_pattern (P_typed pattern typexpr) = 
+     P_alias (remv_tyvar_pattern pattern) value_name) /\
+ (remv_tyvar_pattern (P_typed pattern typexpr) =
      P_typed (remv_tyvar_pattern pattern) (remv_tyvar_typexpr typexpr)) /\
- (remv_tyvar_pattern (P_or pattern1 pattern2) = 
+ (remv_tyvar_pattern (P_or pattern1 pattern2) =
      P_or (remv_tyvar_pattern pattern1) (remv_tyvar_pattern pattern2)) /\
- (remv_tyvar_pattern (P_construct constr (pattern_list)) = 
+ (remv_tyvar_pattern (P_construct constr (pattern_list)) =
      P_construct constr (MAP (\pattern_. (remv_tyvar_pattern pattern_)) pattern_list)) /\
  (remv_tyvar_pattern (P_construct_any constr) = P_construct_any constr) /\
- (remv_tyvar_pattern (P_tuple (pattern_list)) = 
+ (remv_tyvar_pattern (P_tuple (pattern_list)) =
      P_tuple (MAP (\pattern_. (remv_tyvar_pattern pattern_)) pattern_list)) /\
- (remv_tyvar_pattern (P_record (field_pattern_list)) = 
+ (remv_tyvar_pattern (P_record (field_pattern_list)) =
      P_record (MAP (\(field_,pattern_). (field_,(remv_tyvar_pattern pattern_))) field_pattern_list)) /\
- (remv_tyvar_pattern (P_cons pattern1 pattern2) = 
+ (remv_tyvar_pattern (P_cons pattern1 pattern2) =
      P_cons (remv_tyvar_pattern pattern1) (remv_tyvar_pattern pattern2))`;
 *)
 
 consts remv_tyvar_letrec_binding :: "letrec_binding => letrec_binding"
 (*
-`(remv_tyvar_letrec_binding (LRB_simple value_name pattern_matching) = 
+`(remv_tyvar_letrec_binding (LRB_simple value_name pattern_matching) =
      LRB_simple value_name (remv_tyvar_pattern_matching pattern_matching)) /\
- (remv_tyvar_letrec_bindings (LRBs_inj (letrec_binding_list)) = 
+ (remv_tyvar_letrec_bindings (LRBs_inj (letrec_binding_list)) =
      LRBs_inj (MAP (\letrec_binding_. (remv_tyvar_letrec_binding letrec_binding_)) letrec_binding_list)) /\
- (remv_tyvar_let_binding (LB_simple pattern expr) = 
+ (remv_tyvar_let_binding (LB_simple pattern expr) =
      LB_simple (remv_tyvar_pattern pattern) (remv_tyvar_expr expr)) /\
- (remv_tyvar_pat_exp (PE_inj pattern expr) = 
+ (remv_tyvar_pat_exp (PE_inj pattern expr) =
      PE_inj (remv_tyvar_pattern pattern) (remv_tyvar_expr expr)) /\
- (remv_tyvar_pattern_matching (PM_pm (pat_exp_list)) = 
+ (remv_tyvar_pattern_matching (PM_pm (pat_exp_list)) =
      PM_pm (MAP (\pat_exp_. (remv_tyvar_pat_exp pat_exp_)) pat_exp_list)) /\
  (remv_tyvar_expr (Expr_uprim unary_prim) = Expr_uprim unary_prim) /\
  (remv_tyvar_expr (Expr_bprim binary_prim) = Expr_bprim binary_prim) /\
  (remv_tyvar_expr (Expr_ident value_name) = Expr_ident value_name) /\
  (remv_tyvar_expr (Expr_constant constant) = Expr_constant constant) /\
- (remv_tyvar_expr (Expr_typed expr typexpr) = 
+ (remv_tyvar_expr (Expr_typed expr typexpr) =
      Expr_typed (remv_tyvar_expr expr) (remv_tyvar_typexpr typexpr)) /\
- (remv_tyvar_expr (Expr_tuple (expr_list)) = 
+ (remv_tyvar_expr (Expr_tuple (expr_list)) =
      Expr_tuple (MAP (\expr_. (remv_tyvar_expr expr_)) expr_list)) /\
  (remv_tyvar_expr (Expr_construct constr (expr_list)) =
      Expr_construct constr (MAP (\expr_. (remv_tyvar_expr expr_)) expr_list)) /\
- (remv_tyvar_expr (Expr_cons expr1 expr2) = 
+ (remv_tyvar_expr (Expr_cons expr1 expr2) =
      Expr_cons (remv_tyvar_expr expr1) (remv_tyvar_expr expr2)) /\
- (remv_tyvar_expr (Expr_record (field_expr_list)) = 
+ (remv_tyvar_expr (Expr_record (field_expr_list)) =
      Expr_record (MAP (\(field_,expr_). (field_,(remv_tyvar_expr expr_))) field_expr_list)) /\
- (remv_tyvar_expr (Expr_override expr (field_expr_list)) = 
-     Expr_override (remv_tyvar_expr expr) 
+ (remv_tyvar_expr (Expr_override expr (field_expr_list)) =
+     Expr_override (remv_tyvar_expr expr)
                    (MAP (\(field_,expr_). (field_,(remv_tyvar_expr expr_))) field_expr_list)) /\
- (remv_tyvar_expr (Expr_apply expr1 expr2) = 
+ (remv_tyvar_expr (Expr_apply expr1 expr2) =
      Expr_apply (remv_tyvar_expr expr1) (remv_tyvar_expr expr2)) /\
- (remv_tyvar_expr (Expr_and expr1 expr2) = 
+ (remv_tyvar_expr (Expr_and expr1 expr2) =
      Expr_and (remv_tyvar_expr expr1) (remv_tyvar_expr expr2)) /\
- (remv_tyvar_expr (Expr_or expr1 expr2) = 
+ (remv_tyvar_expr (Expr_or expr1 expr2) =
      Expr_or (remv_tyvar_expr expr1) (remv_tyvar_expr expr2)) /\
  (remv_tyvar_expr (Expr_field expr field) = Expr_field (remv_tyvar_expr expr) field) /\
- (remv_tyvar_expr (Expr_ifthenelse expr0 expr1 expr2) = 
+ (remv_tyvar_expr (Expr_ifthenelse expr0 expr1 expr2) =
      Expr_ifthenelse (remv_tyvar_expr expr0) (remv_tyvar_expr expr1) (remv_tyvar_expr expr2)) /\
- (remv_tyvar_expr (Expr_while expr1 expr2) = 
+ (remv_tyvar_expr (Expr_while expr1 expr2) =
      Expr_while (remv_tyvar_expr expr1) (remv_tyvar_expr expr2)) /\
- (remv_tyvar_expr (Expr_for x expr1 for_dirn expr2 expr3) = 
+ (remv_tyvar_expr (Expr_for x expr1 for_dirn expr2 expr3) =
      Expr_for x (remv_tyvar_expr expr1) for_dirn (remv_tyvar_expr expr2) (remv_tyvar_expr expr3))/\
- (remv_tyvar_expr (Expr_sequence expr1 expr2) = 
+ (remv_tyvar_expr (Expr_sequence expr1 expr2) =
      Expr_sequence (remv_tyvar_expr expr1) (remv_tyvar_expr expr2)) /\
- (remv_tyvar_expr (Expr_match expr pattern_matching) = 
+ (remv_tyvar_expr (Expr_match expr pattern_matching) =
      Expr_match (remv_tyvar_expr expr) (remv_tyvar_pattern_matching pattern_matching)) /\
- (remv_tyvar_expr (Expr_function pattern_matching) = 
+ (remv_tyvar_expr (Expr_function pattern_matching) =
      Expr_function (remv_tyvar_pattern_matching pattern_matching)) /\
- (remv_tyvar_expr (Expr_let let_binding expr) = 
+ (remv_tyvar_expr (Expr_let let_binding expr) =
      Expr_let (remv_tyvar_let_binding let_binding) (remv_tyvar_expr expr)) /\
- (remv_tyvar_expr (Expr_letrec letrec_bindings expr) = 
+ (remv_tyvar_expr (Expr_letrec letrec_bindings expr) =
      Expr_letrec (remv_tyvar_letrec_bindings letrec_bindings) (remv_tyvar_expr expr)) /\
  (remv_tyvar_expr (Expr_location location) = Expr_location location)`;
 *)

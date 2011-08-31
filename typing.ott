@@ -38,7 +38,7 @@ dom(value_name:typescheme) gives value_name
 
  ----------------------------------------------------- :: record_typeconstr_name
   dom(typeconstr_name : kind {field_name1; ...; field_namen}) gives typeconstr_name
- 
+
  ----------------------------------------------------- :: record_field_name
   dom(field_name:forall type_params_opt, typeconstr_name -> typexpr) gives field_name
 
@@ -56,7 +56,7 @@ Gets all of the names in an environment.
 }}
 
 ------------------------------------------------------- :: empty
-dom(empty) gives 
+dom(empty) gives
 
 dom(E) gives name1..namen
 :JdomEB:dom(EB) gives name
@@ -70,7 +70,7 @@ defn
 E |- name gives EB :: :: EB :: EB_ {{ com Environment lookup }} by
 
 {{ com
-Returns the rightmost binding that matches the given name. 
+Returns the rightmost binding that matches the given name.
 }}
 
 :JdomEB:dom(EB) gives name'
@@ -83,7 +83,7 @@ E,EB |- name gives EB'
 name noteq TV
 E |- name gives EB'
 ------------------------------------------------------- :: rec2
-E,TV |- name gives shift 0 1 EB'
+( E,TV ) |- name gives ( shift 0 1 EB' )
 
 :JdomEB:dom(EB) gives name
 ------------------------------------------------------- :: head
@@ -97,17 +97,17 @@ E |- idx bound :: :: bound :: bound_ {{ com Well-formed index }} by
 
 {{ com
 Determines whether an index is bound by an environment.
-}} 
+}}
 
 E |- idx bound
 :JdomEB:dom(EB) gives name
 name noteq TV
 ------------------------------------------------------- :: skip1
-E, EB |- idx bound 
+E, EB |- idx bound
 
 E |- idx bound
 ------------------------------------------------------- :: skip2
-E, TV |- (idx + 1) bound 
+E, TV |- (idx + 1) bound
 
 ------------------------------------------------------- :: found
 E, TV |- 0 bound
@@ -123,7 +123,7 @@ defn
 Counts the number of parameters and ensures that none is repeated.
 }}
 
-tp1 ... tpn distinct 
+tp1 ... tpn distinct
 length (tp1)...(tpn) = n
 ------------------------------------------------------- :: kind
 |- (tp1, ..., tpn) : n -> Type
@@ -134,7 +134,7 @@ JTEok :: JT ::=
 
 defn
 E |- ok :: :: Eok :: Eok_ {{ com Environment validity }} by
-      
+
 {{ com
 Asserts that the various components of the environment are well-formed
 (including that there are no free type references), and regulates name
@@ -142,7 +142,7 @@ shadowing.  Environments contain identifiers related to type definitions and
 type variables as well as expression-level variables (i.e., value names), so
 they are dependent from left to right.  Shadowing of type, constructor, field
 and label names is forbidden, but shadowing of value names is allowed.
-}} 
+}}
 
 ------------------------------------------------------- :: empty
 empty |- ok
@@ -167,7 +167,7 @@ E, (value_name : forall t) |- ok
   E |- typeconstr_name gives typeconstr_name : m -> Type
   dom(E) gives names
   constr_name notin names
-  length ( (t1) ... (tn) ) >= 1
+  :formula_length_list_typexpr_ge:length ( t1 ) ... ( tn ) >= 1
   :formula_length_list_type_param_eq:length (tv1) ... (tvm) = m
  ----------------------------------------------------- :: constr_name_p
   E,(constr_name of forall (tv1, ..., tvm), (t1, ..., tn) : typeconstr_name) |- ok
@@ -291,7 +291,7 @@ type well-formedness judgment below only depends on well-formedness of
 sub-expressions, and not on the exact form of sub-expressions.
 }}
 
-E |- <<tv1<-unit, ..., tvn<-unit>>t : Type
+E |- << ( tv1 <- unit ), ..., ( tvn <- unit ) >> t : Type
 tv1...tvn distinct
 ------------------------------------------------------- :: forall
 E |- forall (tv1, ..., tvn), t : Type
@@ -317,7 +317,7 @@ E |-  t -> '[^' qlt '^]' t' : Type
 
 %TODO: constraints for linearity
 E |- t1 : Type .... E |- tn : Type
-length (t1)....(tn) >= 2
+:formula_length_list_expr_ge: length (t1) ... (tn) >= 2
 ------------------------------------------------------- :: tuple
 E |- ( t1*....*tn ) '[^' qlt '^]' : Type
 
@@ -362,7 +362,7 @@ obtained by expanding all type abbreviations.
   E |- typeconstr_name gives (typevar1, ..., typevarn) typeconstr_name=t
   E |- t1 : Type ... E |- tn : Type
  ----------------------------------------------------- :: expand
-  E |- (t1, ..., tn) typeconstr_name == <<typevar1<-t1, ..., typevarn<-tn>>t
+  E |- (t1, ..., tn) typeconstr_name == << ( typevar1<-t1 ), ..., ( typevarn<-tn) >>t
 
 %TODO: constraints for linearity
   E |- t1 == t1'
@@ -395,7 +395,7 @@ other indices by 1.
 }}
 
 ------------------------------------------------------- :: alpha
-<<t1, .., tn>> typevar gives typevar
+<< t1, .., tn >> typevar gives typevar
 
 
 length (t1)..(tm) = num
@@ -404,13 +404,13 @@ length (t1)..(tm) = num
 
 length (t1)..(tn) <= num
 ------------------------------------------------------- :: idx1
-<<t1, .., tn>> <0, num> gives unit
+<< t1, .., tn >> <0, num> gives unit
 
 ------------------------------------------------------- :: idx2
-<<t1, .., tn>> <idx + 1, num> gives <idx, num>
+<< t1, .., tn >> <idx + 1, num> gives <idx, num>
 
 ------------------------------------------------------- :: any
-<<t1, .., tn>> _ gives _
+<< t1, .., tn >> _ gives _
 
 %TODO: constraints for linearity
 <<t1, .., tn>> t1' gives t1''
@@ -470,9 +470,9 @@ E |- typexpr <= typexpr' :: :: inst_any :: inst_any_ {{ com Wildcard type instan
 Replaces $\ottkw{\_}$ type variables with arbitrary types.
 }}
 
-E |- <idx, num> : Type 
+E |- <idx, num> : Type
 ------------------------------------------------------- :: tyvar
-E |- <idx, num> <= <idx, num> 
+E |- <idx, num> <= <idx, num>
 
 E |- t : Type
 ------------------------------------------------------- :: any
@@ -526,10 +526,10 @@ field names are used to destructure record data, the type is a function type
 from a record to the type of the corresponding position.
 }}
 
-E |- field_name gives field_name:forall (tv1, ..., tvm), typeconstr_name -> t
-E |- (t1', ..., tm') typeconstr_name -> t'' <= forall (tv1, ..., tvm), (tv1, ..., tvm) typeconstr_name -> t
+E |- field_name gives field_name:forall ( tv1, ..., tvm ), typeconstr_name -> t
+E |- ( t1', ..., tm' ) typeconstr_name -> t'' <= forall ( tv1, ..., tvm ), ( tv1, ..., tvm ) typeconstr_name -> t
 ------------------------------------------------------- :: name
-E |- field_name : (t1', ..., tm') typeconstr_name -> t''
+E |- field_name : ( t1', ..., tm' ) typeconstr_name -> t''
 
  >>
 <<
@@ -548,14 +548,14 @@ well as a return type.
 
 %TODO: constraints for linearity
   E |- constr_name gives constr_name of forall (tv1, ..., tvm), (t1,....,tn):typeconstr
-  E |- (t1' * .... * tn') -> (t1'', ..., tm'') typeconstr '[^' qlt1 '^]' <= forall (tv1, ..., tvm), (t1 * .... * tn) -> (tv1, ..., tvm) typeconstr '[^' qlt2 '^]'
+  E |- ( t1' * .... * tn' ) -> ( t1'', ..., tm'' ) typeconstr '[^' qlt1 '^]' <= forall ( tv1, ..., tvm ), ( t1 * .... * tn ) -> ( tv1, ..., tvm ) typeconstr '[^' qlt2 '^]'
  ----------------------------------------------------- :: name
   E |- constr_name : t1' .... tn' -> (t1'', ..., tm'') typeconstr '[^' qlt '^]'
 
 %TODO: constraints for linearity
 E |- t : Type
 ------------------------------------------------------- :: some
-E |- Some : t -> (t option '[^' qlt '^]') 
+E |- Some : t -> (t option '[^' qlt '^]')
 
 
 
@@ -689,24 +689,24 @@ length (pattern1)....(patternn) >= 2
 dom(E1@....@En) gives name1..namem
 name1..namem distinct
 ------------------------------------------------------- :: tuple
-Tsigma & E |- pattern1,....,patternn : t1*....*tn gives E1@....@En
+Tsigma & E |- ( pattern1 , ...., patternn ) : ( t1 * .... * tn ) gives ( E1 @ .... @ En)
 
 %TODO: constraints for linearity (especially partial matches)
   Tsigma & E |- pattern1:t1 gives E1 ... Tsigma & E |- patternn:tn gives En
   E |- field_name1 : t->t1 ... E |- field_namen : t->tn
-  length (pattern1)...(patternn) >= 1
+  length ( (pattern1) ... (patternn) ) >= 1
   dom(E1@...@En) gives name1..namem
   name1..namem distinct
  ----------------------------------------------------- :: record
   Tsigma & E |- {field_name1=pattern1; ...; field_namen=patternn} : t gives E1@...@En
 
 Tsigma & E |- pattern : t gives E'
-Tsigma & E |- pattern' : t list gives E''
+Tsigma & E |- pattern' : (t list) gives E''
 dom(E') gives name1..namem
 dom(E'') gives name1'..namen'
 name1..namem name1'..namen' distinct
 ------------------------------------------------------- :: cons
-Tsigma & E |- pattern :: pattern' : t list gives E'@E''
+Tsigma & E |- pattern :: pattern' : (t list) gives E'@E''
 
 
 
@@ -826,7 +826,7 @@ Tsigma & E |- (e:src_t) : t
 %TODO: add constraints for linearity
 Tsigma & E |- e1:t1 .... Tsigma & E |- en:tn
 length (e1)....(en) >= 2
-E |- t1*....*tn == t'
+E |- ( t1 * .... * tn ) == t'
 ------------------------------------------------------- :: tuple
 Tsigma & E |- e1,....,en : t'
 
@@ -1037,7 +1037,7 @@ Tsigma & E |- value_name1 = function pattern_matching1 and ... and value_namen =
 >>
  <<
 
-defns 
+defns
 JTconstr_decl :: JT ::=
 
 defn
@@ -1141,7 +1141,7 @@ type_params_opt typeconstr_name |- field_name1:t1 gives EB1 ... type_params_opt 
 ------------------------------------------------------- :: def_record
 |- type_params_opt typeconstr_name = {field_name1:t1; ...; field_namen:tn} and </typedefi//i/> gives E, (typeconstr_name : kind {field_name1; ...; field_namen}) and E' and E''@EB1,...,EBn
 
-{{ com 
+{{ com
 A record type definition yields two sorts of bindings: one for the type
 constructor name and one for each field.  The field names are also recorded
 with the type constructor binding; this information is used in the rule
@@ -1155,13 +1155,13 @@ exhaustivity of pattern matching.)
 \ottbreakconclusionlinefalse
 }}
 
-defns 
+defns
 JTtype_definition :: JT ::=
 
 defn
 E |- type_definition gives E' :: :: type_definition :: type_definition_ {{ com Type definition well-formedness and binding collection }} by
 
-{{ com 
+{{ com
 Collects the bindings of a type definition and ensures that they are
 well-formed.  Any given name may be defined at most once, and all names used
 must have been bound previously or earlier in the same type definition phrase.
@@ -1174,7 +1174,7 @@ not have to abide by this constraint: they may order type abbreviations in any
 way. Therefore the rule \ottdruleref{JTtype_definition_swap} allows an
 arbitrary reordering of type definitions --- it suffices for a type definition
 to be correct that there exist a reordering that makes the type abbreviations
-properly ordered. 
+properly ordered.
 }}
 
 |- typedef1 and ... and typedefn gives E' and E'' and E'''
@@ -1191,7 +1191,7 @@ E |- type </typedefi//i/> and typedef and typedef' and </typedefj''//j/> gives E
 {{ com
 }}
 
-defns 
+defns
 JTdefinition :: JT ::=
 
 defn
@@ -1203,7 +1203,7 @@ Collects the bindings of a definition and ensures that they are well-formed.
 Each definition can bind zero, one or more names.  Type variables that are
 mentionned by the programmer in type annotations are scoped at this level.
 Thus, the $[[Tsigma]]$ substitution is arbitrarily created for each definition
-to ensure that each type variable is used consistently in the definition.  
+to ensure that each type variable is used consistently in the definition.
 }}
 
 Tsigma & E,TV |- pat=nexp gives (x1:t1'),..,(xk:tk')
@@ -1222,7 +1222,7 @@ E |- type typedef1 and ... and typedefn gives E'
 ------------------------------------------------------- :: typedef
 E |- type typedef1 and ... and typedefn : E'
 
-defns 
+defns
 JTdefinitions :: JT ::=
 
 defn
@@ -1284,7 +1284,7 @@ defns
 JTtop :: JT ::=
 
 defn
-E |- < program , store > : E' :: :: top :: top_ {{ com Top-level typing }} 
+E |- < program , store > : E' :: :: top :: top_ {{ com Top-level typing }}
 {{ tex [[E]] \vdash \langle [[program]], [[store]] \rangle }} by
 
 {{ com
@@ -1305,7 +1305,7 @@ E |- <program, store> : E'@E''
 defns
 JTLin :: JT ::=
 defn
-Tsigma & E |- L      	:: :: Lin :: Lin_ {{ com Label-to-environment extraction }} by
+Tsigma & E |- L    :: :: Lin :: Lin_ {{ com Label-to-environment extraction }} by
 
 {{ com
 Used in the proof only
@@ -1322,7 +1322,7 @@ Tsigma & E |- ref v = location
 Tsigma & E |- v : t
 E |- location gives (location:t)
 ------------------------------------------------------- :: deref
-Tsigma & E |- !location = v 
+Tsigma & E |- !location = v
 
 ------------------------------------------------------- :: assign
 Tsigma & E |- location := v
@@ -1330,7 +1330,7 @@ Tsigma & E |- location := v
 defns
 JTLout :: JT ::=
 defn
-Tsigma & E |- L gives E'	:: :: Lout :: Lout_ {{ com Label-to-environment extraction }} by
+Tsigma & E |- L gives E'  :: :: Lout :: Lout_ {{ com Label-to-environment extraction }} by
 
 {{ com
 Used in the proof only
