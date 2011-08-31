@@ -212,6 +212,10 @@ grammar
     | option                                            :: L :: option
   %% Pervasives http://caml.inria.fr/pub/docs/manual-ocaml/libref/Pervasives.html
     | ref                                               :: L :: ref
+%  %% QuaLiTy: user hints for Quality
+%    | lin                                            :: L :: linear
+%    | obs                                            :: L :: observer
+%    | nonlin                                         :: L :: nonlinear
   field :: F_  ::= {{ coq-equality }}
    | field_name                                        :: d :: name
  % |  module_path . field_name                         :: d :: path
@@ -221,6 +225,9 @@ grammar
       {{ hol num }}
       {{ isa nat }}
       {{ com index arithmetic for the type system's deBruijn type variable representation }}
+    | 0 {{ tex 0 }} :: I :: 0
+    | 1 {{ tex 1 }} :: I :: 1
+    | 2 {{ tex 2 }} :: I :: 2
     | m                                                 :: I :: N 
         {{ ich [[m]] }}
     | idx1 + idx2                                       :: I :: Add 
@@ -241,47 +248,51 @@ grammar
 
   %% 6.4 (Type expressions) http://caml.inria.fr/pub/docs/manual-ocaml/manual012.html#typexpr
 
+  quality, qlt, q :: QLT_ ::= {{ com qualities for types }}
+    | linear     {{ tex 1 }}      :: :: linear
+    | observed   {{ tex \delta }} :: :: observed
+    | nonlinear  {{ tex \omega }} :: :: nonlinear
+
+
   typexpr , t :: TE_ ::=
-    | typevar                                           ::   :: var
-    | < idx , num >                                     :: I :: idxvar
+    | typevar '[^' qlt '^]'                                       ::   :: var
+    | < idx , num >                                               :: I :: idxvar
         {{ com de Bruijn represenataion of type variables.  [[num]] allows each binder (\ie a polymorphic $\ottkw{let}$) to introduce an arbitrary number of binders }}
-    | _                                                 ::   :: any
-    | ( typexpr )                                       :: S :: paren
+    | _ '[^' qlt '^]'                                             ::   :: any
+    | ( typexpr )                                                 :: S :: paren
         {{ ich [[typexpr]] }}
-    | typexpr1 -> typexpr2                              ::   :: arrow
-    | typexpr1 * .... * typexprn                        ::   :: tuple
-    | typeconstr                                        :: S :: constr0
+    | typexpr1 -> '[^' qlt '^]' typexpr2                          ::   :: arrow
+    | ( typexpr1 * .... * typexprn ) '[^' qlt '^]'                ::   :: tuple
+    | typeconstr '[^' qlt '^]'                                    :: S :: constr0
         {{ coq (TE_constr nil [[typeconstr]]) }}
         {{ hol (TE_constr [] [[typeconstr]]) }}
         {{ isa (TE_constr [] [[typeconstr]]) }}
         {{ com in the theorem prover models we use a uniform representation for 0-, 1-, and n-ary type constructor applications }}
-    | typexpr typeconstr                                :: S :: constr1
+    | typexpr typeconstr '[^' qlt '^]'                            :: S :: constr1
         {{ coq (TE_constr (cons [[typexpr]] nil) [[typeconstr]]) }}
         {{ hol (TE_constr ([ [[typexpr]] ]) [[typeconstr]]) }}
         {{ isa (TE_constr ([ [[typexpr]] ]) [[typeconstr]]) }}
-    | ( typexpr1 , ... , typexprn ) typeconstr          ::   :: constr
+    | ( typexpr1 , ... , typexprn ) typeconstr '[^' qlt '^]'      ::   :: constr
 %   | typexpr as typevar                                ::   ::
-    | shift num num' typexpr                            :: M :: shift
+    | shift num num' typexpr                                      :: M :: shift
         {{ ich (shiftt [[num]] [[num']] [[typexpr]]) }}
         {{ com shifts as in $[[Tsigma]]$ above }}
-    | t1 -> ... -> tn ---> t                            :: M I :: arrown
-        {{ coq (fold_right TE_arrow [[t]] [[t1 ... tn]]) }}
-        {{ hol (FOLDR TE_arrow [[t]] [[t1 ... tn]]) }}
-        {{ isa (foldr TE_arrow [[t1 ... tn]] [[t]]) }}
-    | Tsigma typexpr                                    :: M I :: susbts
+    % We do not provide n-ary curried functions because the parsing is difficult
+    % (too difficult for ott?). We might do some time in the future.
+    | Tsigma typexpr                                              :: M I :: susbts
         {{ ich (substs_typevar_typexpr [[Tsigma]] [[typexpr]]) }}
         {{ com apply the substitution }}
 
   src_typexpr , src_t :: STE_ ::=  {{ com types that can appear in source programs }}
-    | typevar                                           ::   :: var
-    | _                                                 ::   :: any
-    | ( src_typexpr )                                   ::   :: paren
-    | src_typexpr1 -> src_typexpr2                      ::   :: arrow
-    | src_typexpr1 * .... * src_typexprn                ::   :: tuple
-    | typeconstr                                        ::   :: constr0
-    | src_typexpr typeconstr                            ::   :: constr1
-    | ( src_typexpr1 , ... , src_typexprn ) typeconstr  ::   :: constr
-    | shift num num' src_typexpr                        ::   :: shift
+    | typevar '[^' qlt '^]'                                          ::   :: var
+    | _ '[^' qlt '^]'                                                ::   :: any
+    | ( src_typexpr )                                                ::   :: paren
+    | src_typexpr1 -> '[^' qlt '^]' src_typexpr2                     ::   :: arrow
+    | ( src_typexpr1 * .... * src_typexprn ) '[^' qlt '^]'           ::   :: tuple
+    | typeconstr '[^' qlt '^]'                                       ::   :: constr0
+    | src_typexpr typeconstr '[^' qlt '^]'                           ::   :: constr1
+    | ( src_typexpr1 , ... , src_typexprn ) typeconstr '[^' qlt '^]' ::   :: constr
+    | shift num num' src_typexpr                                     ::   :: shift
 
   typevar {{ tex \alpha }} , tv {{ tex \alpha }} :: TV_ ::= {{ coq-equality }}
     | ' ident                                           ::   :: ident
@@ -964,6 +975,8 @@ grammar
     | ==              :: :: equiv        {{ tex \equiv }}
     | >=              :: :: ge           {{ tex \geq }}
     | '>>'            :: :: substr       {{ tex \}\!\!\} }}
+    | '[^'            :: :: qltl         {{ tex ^{ }}
+    | '^]'            :: :: qltr         {{ tex } }}
     | forall          :: :: forall       {{ tex \forall }}
     | gives           :: :: gives        {{ tex \;\vartriangleright\;\ottmaybebreakline }}
     | notin           :: :: notin        {{ tex \notin }}

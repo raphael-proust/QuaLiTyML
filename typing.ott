@@ -107,7 +107,7 @@ E, EB |- idx bound
 
 E |- idx bound
 ------------------------------------------------------- :: skip2
-E, TV |- idx + 1 bound 
+E, TV |- (idx + 1) bound 
 
 ------------------------------------------------------- :: found
 E, TV |- 0 bound
@@ -167,7 +167,7 @@ E, (value_name : forall t) |- ok
   E |- typeconstr_name gives typeconstr_name : m -> Type
   dom(E) gives names
   constr_name notin names
-  length (t1) ... (tn) >= 1
+  length ( (t1) ... (tn) ) >= 1
   :formula_length_list_type_param_eq:length (tv1) ... (tvm) = m
  ----------------------------------------------------- :: constr_name_p
   E,(constr_name of forall (tv1, ..., tvm), (t1, ..., tn) : typeconstr_name) |- ok
@@ -309,21 +309,24 @@ E |- idx bound
 ------------------------------------------------------- :: var
 E |- <idx, num> : Type
 
+%TODO: constraints for linearity
 E |- t : Type
 E |- t' : Type
 ------------------------------------------------------- :: arrow
-E |- t->t' : Type
+E |-  t -> '[^' qlt '^]' t' : Type
 
+%TODO: constraints for linearity
 E |- t1 : Type .... E |- tn : Type
 length (t1)....(tn) >= 2
 ------------------------------------------------------- :: tuple
-E |- t1*....*tn : Type
+E |- ( t1*....*tn ) '[^' qlt '^]' : Type
 
+%TODO: constraints for linearity
 :JTtypeconstr: E |- typeconstr : n -> Type
 E |- t1 : Type ... E |- tn : Type
 length (t1)...(tn) = n
 ------------------------------------------------------- :: constr
-E |- (t1,...,tn) typeconstr : Type
+E |- (t1,...,tn) typeconstr '[^' qlt '^]'  : Type
 
 
 
@@ -354,27 +357,31 @@ obtained by expanding all type abbreviations.
  ----------------------------------------------------- :: trans
   E |- t == t''
 
+%TODO: constraints for linearity
   E |- ok
   E |- typeconstr_name gives (typevar1, ..., typevarn) typeconstr_name=t
   E |- t1 : Type ... E |- tn : Type
  ----------------------------------------------------- :: expand
   E |- (t1, ..., tn) typeconstr_name == <<typevar1<-t1, ..., typevarn<-tn>>t
 
+%TODO: constraints for linearity
   E |- t1 == t1'
   E |- t2 == t2'
  ----------------------------------------------------- :: arrow
-  E |- t1 -> t2 == t1' -> t2'
+  E |- t1 -> '[^' qlt1 '^]' t2 == t1' -> '[^' qlt2 '^]' t2'
 
+%TODO: constraints for linearity
   E |- t1 == t1' ....  E |- tn == tn'
   length (t1)....(tn) >= 2
  ----------------------------------------------------- :: tuple
-  E |- t1 * .... * tn == t1' * .... * tn'
+  E |- ( t1 * .... * tn ) '[^' qlt1 '^]' == ( t1' * .... * tn' ) '[^' qlt2 '^]'
 
+%TODO: constraints for linearity
   :JTtypeconstr: E |- typeconstr : n -> Type
   E |- t1 == t1' ...  E |- tn == tn'
   length (t1)...(tn) = n
  ----------------------------------------------------- :: constr
-  E |- (t1, ..., tn) typeconstr == (t1', ..., tn') typeconstr
+  E |- (t1, ..., tn) typeconstr '[^' qlt1 '^]' == (t1', ..., tn') typeconstr '[^' qlt2 '^]'
 
 defns
 JTidxsub :: JT ::=
@@ -405,18 +412,21 @@ length (t1)..(tn) <= num
 ------------------------------------------------------- :: any
 <<t1, .., tn>> _ gives _
 
+%TODO: constraints for linearity
 <<t1, .., tn>> t1' gives t1''
 <<t1, .., tn>> t2' gives t2''
 ------------------------------------------------------- :: arrow
-<<t1, .., tn>> (t1' -> t2') gives t1'' -> t2''
+<<t1, .., tn>> (t1' -> '[^' qlt1 '^]' t2') gives t1'' -> '[^' qlt1 '^]' t2''
 
+%TODO: constraints for linearity
 <<t1, .., tn>> t1' gives t1'' .... <<t1, .., tn>> tm' gives tm''
 ------------------------------------------------------- :: tuple
-<<t1, .., tn>> (t1' * .... * tm') gives (t1'' * .... * tm'')
+<<t1, .., tn>> (t1' * .... * tm') '[^' qlt1 '^]' gives (t1'' * .... * tm'') '[^' qlt2 '^]'
 
+%TODO: constraints for linearity
 <<t1, .., tn>> t1' gives t1'' ... <<t1, .., tn>> tm' gives tm''
 ------------------------------------------------------- :: tc
-<<t1, .., tn>> (t1', ..., tm') typeconstr gives (t1'', ..., tm'') typeconstr
+<<t1, .., tn>> (t1', ..., tm') typeconstr '[^' qlt1 '^]' gives (t1'', ..., tm'') typeconstr '[^' qlt2 '^]'
 
 
 defns
@@ -468,21 +478,24 @@ E |- t : Type
 ------------------------------------------------------- :: any
 E |- t <= _
 
+%TODO: constraints for linearity
 E |- t1 <= t1'
 E |- t2 <= t2'
 ------------------------------------------------------- :: arrow
-E |- t1 -> t2 <= t1' -> t2'
+E |- t1 -> '[^' qlt1 '^]' t2 <= t1' -> '[^' qlt2 '^]' t2'
 
+%TODO: constraints for linearity
 E |- t1 <= t1' .... E |- tn <= tn'
 length (t1)....(tn) >= 2
 ------------------------------------------------------- :: tuple
-E |- t1 * .... * tn <= t1' * .... * tn'
+E |- (t1 * .... * tn) '[^' qlt1 '^]' <= (t1' * .... * tn') '[^' qlt2 '^]'
 
+%TODO: constraints for linearity
 E |- t1 <= t1' ... E |- tn <= tn'
 :JTtypeconstr: E |- typeconstr : n -> Type
 length (t1)...(tn) = n
 ------------------------------------------------------- :: ctor
-E |- (t1, ..., tn) typeconstr <= (t1', ..., tn') typeconstr
+E |- (t1, ..., tn) typeconstr '[^' qlt1 '^]' <= (t1', ..., tn') typeconstr '[^' qlt1 '^]'
 
 defns
 JTval :: JT ::=
@@ -533,14 +546,16 @@ Non-constant constructors are attributed types for each argument as
 well as a return type.
 }}
 
+%TODO: constraints for linearity
   E |- constr_name gives constr_name of forall (tv1, ..., tvm), (t1,....,tn):typeconstr
-  E |- (t1' * .... * tn') -> (t1'', ..., tm'') typeconstr <= forall (tv1, ..., tvm), (t1 * .... * tn) -> (tv1, ..., tvm) typeconstr
+  E |- (t1' * .... * tn') -> (t1'', ..., tm'') typeconstr '[^' qlt1 '^]' <= forall (tv1, ..., tvm), (t1 * .... * tn) -> (tv1, ..., tvm) typeconstr '[^' qlt2 '^]'
  ----------------------------------------------------- :: name
-  E |- constr_name : t1' .... tn' -> (t1'', ..., tm'') typeconstr
+  E |- constr_name : t1' .... tn' -> (t1'', ..., tm'') typeconstr '[^' qlt '^]'
 
+%TODO: constraints for linearity
 E |- t : Type
 ------------------------------------------------------- :: some
-E |- Some : t -> (t option) 
+E |- Some : t -> (t option '[^' qlt '^]') 
 
 
 
@@ -555,22 +570,19 @@ Constant constructors are typed like non-constant constructors without
 arguments.
 }}
 
+%TODO: constraints for linearity
   E |- ok
   E |- constr_name gives constr_name of typeconstr_name
   E |- typeconstr_name gives typeconstr_name : n -> Type
   E |- t1 : Type ... E |- tn : Type
   length (t1) ... (tn) = n
  ----------------------------------------------------- :: constr
-  E |- constr_name : (t1, ..., tn) typeconstr_name
+  E |- constr_name : (t1, ..., tn) typeconstr_name '[^' qlt '^]'
 
-{{ com
-Dropping the source location arguments for $\ottkw{Assert\_failure}$ and
-$\ottkw{Match\_failure}$.
-}}
-
+%TODO: constraints for linearity
 E |- t : Type
 ------------------------------------------------------- :: none
-E |- None : t option
+E |- None : t option '[^' qlt '^]'
 
 
 
@@ -587,19 +599,19 @@ Determines the type of a constant.
 
 E |- ok
 ------------------------------------------------------- :: int
-E |- integer_literal : int
+E |- integer_literal : ( int '[^' nonlinear '^]' )
 
 E |- ok
 ------------------------------------------------------- :: float
-E |- float_literal   : float
+E |- float_literal   : ( float '[^' linear '^]' )
 
 E |- ok
 ------------------------------------------------------- :: char
-E |- char_literal    : char
+E |- char_literal    : ( char '[^' nonlinear '^]' )
 
 E |- ok
 ------------------------------------------------------- :: string
-E |- string_literal  : string
+E |- string_literal  : ( string '[^' nonlinear '^]' )
 
 :JTconstr_c: E |- constr : t
 ------------------------------------------------------- :: constr
@@ -607,19 +619,20 @@ E |- constr : t
 
 E |- ok
 ------------------------------------------------------- :: false
-E |- false : bool
+E |- false : ( bool '[^' nonlinear '^]' )
 
 E |- ok
 ------------------------------------------------------- :: true
-E |- true : bool
+E |- true : ( bool '[^' nonlinear '^]' )
 
 E |- ok
 ------------------------------------------------------- :: unit
-E |- () : unit
+E |- () : ( unit '[^' nonlinear '^]' )
 
+%TODO: constraints for linearity
 E |- t : Type
 ------------------------------------------------------- :: nil
-E |- [] : t list
+E |- [] : ( t list '[^' qlt '^]' )
 
 defns
 JTpat :: JT ::=
@@ -646,12 +659,6 @@ Tsigma & E |- _ : t gives empty
 :JTconst: E |- constant : t
 ------------------------------------------------------- :: constant
 Tsigma & E |- constant : t gives empty
-
-Tsigma & E |- pattern : t gives E'
-dom(E',x:t) gives name1..namen
-name1..namen distinct
-------------------------------------------------------- :: alias
-Tsigma & E |- pattern as x : t gives E',x:t
 
 Tsigma & E |- pattern : t gives E'
 E |- t' <= Tsigma src_t
@@ -684,6 +691,7 @@ name1..namem distinct
 ------------------------------------------------------- :: tuple
 Tsigma & E |- pattern1,....,patternn : t1*....*tn gives E1@....@En
 
+%TODO: constraints for linearity (especially partial matches)
   Tsigma & E |- pattern1:t1 gives E1 ... Tsigma & E |- patternn:tn gives En
   E |- field_name1 : t->t1 ... E |- field_namen : t->tn
   length (pattern1)...(patternn) >= 1
@@ -709,24 +717,26 @@ defn
 E |- unary_prim : typexpr :: :: uprim :: uprim_ {{ com Unary primitive typing }} by
 
 {{ com
-Determines if a unary primitive has a given type.
+Determines if a unary primitive has a given type. Note that linear references
+are useless and, hence, forbidden.
 }}
 
 E |- ok
 ---------------------------------------------------------------- :: not
-E |- not : bool -> bool
+E |- not : ( bool '[^' nonlinear '^]' ) -> '[^' nonlinear '^]' ( bool '[^' nonlinear '^]' )
 
 E |- ok
 ---------------------------------------------------------------- :: uminus
-E |- ~- : int -> int
+E |- ~- : ( int '[^' nonlinear '^]' ) -> '[^' nonlinear '^]' ( int '[^' nonlinear '^]' )
 
+%linear references are useless because of inplace modification
 E |- t : Type
 ---------------------------------------------------------------- :: ref
-E |- ref : t->(t ref)
+E |- ref : (t '[^' nonlinear '^]' ) -> '[^' nonlinear '^]' (t '[^' nonlinear '^]'  ref) '[^' nonlinear '^]'
 
 E |- t : Type
 ---------------------------------------------------------------- :: deref
-E |- ! : (t ref) -> t
+E |- ! : ( ( t '[^' nonlinear '^]' ) ref) '[^' nonlinear '^]' -> '[^' nonlinear '^]' ( t '[^' nonlinear '^]' )
 
 
 
@@ -740,29 +750,31 @@ E |- binary_prim : typexpr :: :: bprim :: bprim_ {{ com Binary primitive typing 
 Determines if a binary primitive has a given type.
 }}
 
+%Though ((=) (obs x)) returns an observer type, such partial applications are to
+%be forbidden in expression typing rules.
 E |- t : Type
 ---------------------------------------------------------------- :: equal
-E |- = : t -> (t -> bool)
+E |- = : ( t '[^' observed '^]' ) -> ( ( t '[^' observed '^]' ) -> '[^' observed '^]' ( bool '[^' nonlinear '^]' ))
 
 E |- ok
 ---------------------------------------------------------------- :: plus
-E |- + : int->(int->int)
+E |- + : ( int '[^' nonlinear '^]' ) -> '[^' nonlinear '^]' (( int '[^' nonlinear '^]' ) -> '[^' nonlinear '^]' ( int '[^' nonlinear '^]' ))
 
 E |- ok
 ---------------------------------------------------------------- :: minus
-E |- - : int->(int->int)
+E |- - : ( int '[^' nonlinear '^]' ) -> '[^' nonlinear '^]' (( int '[^' nonlinear '^]' ) -> '[^' nonlinear '^]' ( int '[^' nonlinear '^]' ))
 
 E |- ok
 ---------------------------------------------------------------- :: times
-E |- * : int->(int->int)
+E |- * : ( int '[^' nonlinear '^]' ) -> '[^' nonlinear '^]' (( int '[^' nonlinear '^]' ) -> '[^' nonlinear '^]' ( int '[^' nonlinear '^]' ))
 
 E |- ok
 ---------------------------------------------------------------- :: div
-E |- / : int->(int->int option)
+E |- / : ( int '[^' nonlinear '^]' ) -> '[^' nonlinear '^]' (( int '[^' nonlinear '^]' ) -> '[^' nonlinear '^]' ( ( int '[^' nonlinear '^]' ) option '[^' nonlinear '^]' ))
 
 E |- t : Type
 ---------------------------------------------------------------- :: assign
-E |- := : t ref -> (t -> unit)
+E |- := : ( ( t '[^' nonlinear '^]' ) ref '[^' nonlinear '^]' ) -> '[^' nonlinear '^]' (( t '[^' nonlinear '^]' ) -> '[^' nonlinear '^]' unit '[^' nonlinear '^]')
 
 
 
@@ -811,6 +823,7 @@ E |- t == t'
 ------------------------------------------------------- :: typed
 Tsigma & E |- (e:src_t) : t
 
+%TODO: add constraints for linearity
 Tsigma & E |- e1:t1 .... Tsigma & E |- en:tn
 length (e1)....(en) >= 2
 E |- t1*....*tn == t'
@@ -818,18 +831,21 @@ E |- t1*....*tn == t'
 Tsigma & E |- e1,....,en : t'
 
 
+%TODO: add constraints for linearity
 :JTconstr_p:E |- constr : t1...tn->t
 Tsigma & E |- e1 : t1    ...   Tsigma & E |- en : tn
 E |- t == t'
 ------------------------------------------------------- :: construct
 Tsigma & E |- :Expr_construct: constr (e1,...,en) : t'
 
+%TODO: add constraints for linearity
 Tsigma & E |- e1 : t
 Tsigma & E |- e2 : t list
 E |- t list == t'
 ------------------------------------------------------- :: cons
 Tsigma & E |- e1 :: e2 : t'
 
+%TODO: add constraints for linearity
   Tsigma & E |- e1 : t1 ... Tsigma & E |- en : tn
   E |- field_name1 : t->t1 ... E |- field_namen : t->tn
   t = (t1', ..., tl') typeconstr_name
@@ -840,6 +856,7 @@ Tsigma & E |- e1 :: e2 : t'
  ----------------------------------------------------- :: record_constr
   Tsigma & E |- {field_name1=e1; ...; field_namen=en} : t'
 
+%TODO: add constraints for linearity
   Tsigma & E |- expr : t
   E |- field_name1 : t->t1 ... E |- field_namen : t->tn
   Tsigma & E |- e1 : t1 ... Tsigma & E |- en : tn
@@ -849,41 +866,48 @@ Tsigma & E |- e1 :: e2 : t'
  ----------------------------------------------------- :: record_with
   Tsigma & E |- {expr with field_name1=e1; ...; field_namen=en} : t'
 
+%TODO: add constraints for linearity
 Tsigma & E |- e : t1 -> t
 Tsigma & E |- e1 : t1
 ------------------------------------------------------- :: apply
 Tsigma & E |- e e1 : t
 
+%TODO: add constraints for linearity
   Tsigma & E |- e : t
   E |- field_name : t->t'
   E |- t' == t''
  ----------------------------------------------------- :: record_proj
   Tsigma & E |- e.field_name : t''
 
+%TODO: add constraints for linearity
 Tsigma & E |- e1 : bool
 Tsigma & E |- e2 : bool
 E |- bool == t
 ------------------------------------------------------- :: and
 Tsigma & E |- e1 && e2 : t
 
+%TODO: add constraints for linearity
 Tsigma & E |- e1 : bool
 Tsigma & E |- e2 : bool
 E |- bool == t
 ------------------------------------------------------- :: or
 Tsigma & E |- e1 || e2 : t
 
+%TODO: add constraints for linearity
 Tsigma & E |- e1:bool
 Tsigma & E |- e2:t
 Tsigma & E |- e3:t
 ------------------------------------------------------- :: ifthenelse
 Tsigma & E |- if e1 then e2 else e3 : t
 
+%TODO: add constraints for linearity
 Tsigma & E |- e1 : bool
 Tsigma & E |- e2 : unit
 E |- unit == t
 ------------------------------------------------------- :: while
 Tsigma & E |- while e1 do e2 done : t
 
+%TODO: add constraints for linearity
 Tsigma & E |- e1 : int
 Tsigma & E |- e2 : int
 Tsigma & E,:VN_id:lowercase_ident:int |- e3 : unit
@@ -891,6 +915,7 @@ E |- unit == t
 ------------------------------------------------------- :: for
 Tsigma & E |- for lowercase_ident = e1 for_dirn e2 do e3 done : t
 
+%TODO: add constraints for linearity
 Tsigma & E |- e1 : unit
 Tsigma & E |- e2 : t
 ------------------------------------------------------- :: sequence
@@ -902,6 +927,7 @@ Ocaml lets the programmer off with a warning, unless \texttt{-warn-error~S} is
 passed on the compiler command line.
 }}
 
+%TODO: add constraints for linearity
 Tsigma & E |- e:t
 Tsigma & E |- pattern_matching : t -> t'
 ------------------------------------------------------- :: match
@@ -927,24 +953,28 @@ defined; since immediate functions are values, thus nonexpansive, there is no
 need for a monomorphic $\ottkw{let\:rec}$ rule.
 }}
 
+%TODO: add constraints for linearity
 Tsigma & E |- pat=expr gives x1:t1, .., xn:tn
 Tsigma & E@ x1:t1, .., xn:tn |- e : t
 ------------------------------------------------------- :: let_mono
 Tsigma & E |- let pat=expr in e : t
 
+%TODO: add constraints for linearity
 shift 0 1 Tsigma & E,TV |- pat=nexp gives x1:t1, .., xn:tn
 Tsigma & E@ x1:forall t1, .., xn:forall tn |- e : t
 ------------------------------------------------------- :: let_poly
 Tsigma & E |- let pat=nexp in e : t
 
+%TODO: add constraints for linearity
 shift 0 1 Tsigma & E,TV |- letrec_bindings gives x1:t1, ..., xn:tn
 Tsigma & E@(x1:forall t1), ..., (xn:forall tn) |- e : t
 ------------------------------------------------------- :: letrec
 Tsigma & E |- let rec letrec_bindings in e : t
 
+%TODO: add constraints for linearity
 E |- ok
 E |- location gives location:t
-E |- t ref == t'
+E |- t ref '[^' nonlinear '^]' == t'
 ------------------------------------------------------- :: location
 Tsigma & E |- location : t'
 
@@ -961,6 +991,7 @@ the types that should replace type variables in explicitly type-annotated
 patterns.
 }}
 
+%TODO: add constraints for linearity
 Tsigma & E |- pattern1:t gives E1   ...   Tsigma & E |- patternn:t gives En
 Tsigma & E@E1 |- e1:t'              ...   Tsigma & E@En |- en:t'
 length (pattern1)...(patternn) >= 1
@@ -991,6 +1022,7 @@ Determines the types bound by a recursive let's patterns (which are always just 
 \ottbreakconclusionlinetrue
 }}
 
+%TODO: add constraints for linearity
 %%WIDTH: >~a4/landscape/normalsize
 E' = E@value_name1:t1->t1',...,value_namen:tn->tn'
 Tsigma & E' |- pattern_matching1 : t1->t1' ... Tsigma & E' |- pattern_matchingn : tn->tn'
@@ -1204,6 +1236,7 @@ E |- ok
 ---------------------------------------------------------------- :: empty
 E |- : :Env_list:
 
+%TODO: add constraints for linearity
 :JTdefinition:E |- definition : E'
 :JTdefinitions:E@ E' |- definitions' : E''
 ---------------------------------------------------------------- :: item
